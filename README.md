@@ -3,10 +3,13 @@
 **Open-Source AI Forensic Fingerprinting & Decision Support for Illegal Wildlife and Timber Trade Verification**
 
 [![License: Apache 2.0 / MIT](https://img.shields.io/badge/License-Apache_2.0_/_MIT-blue.svg)](LICENSE)
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Live%20App-000000?logo=vercel&logoColor=white)](https://canopytrace.vercel.app)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Google Gemma 4](https://img.shields.io/badge/Google%20Gemma%204-e2b--IT-purple.svg)](https://ollama.com)
 [![agentskills.io](https://img.shields.io/badge/agentskills.io-compliant-green.svg)](https://agentskills.io)
 [![Flutter 3.x](https://img.shields.io/badge/Flutter-Android_%7C_Linux-02569B.svg)](https://flutter.dev)
+
+> 🌐 **Live Cloud Dashboard:** [**https://canopytrace.vercel.app**](https://canopytrace.vercel.app) — Explore interactive forensic triage, CITES quotas, and tamper-evident dossier generation in the browser.
 
 ---
 
