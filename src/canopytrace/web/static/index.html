@@ -84,6 +84,11 @@
         <span class="font-mono text-[11px]" id="topModelBadge">gemma4:e2b</span>
       </div>
 
+      <button id="btnOpenVaultModal" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-700/80 text-emerald-200 font-medium transition shadow-sm text-xs">
+        <i class="fa-solid fa-folder-open text-emerald-400"></i>
+        <span>Archived Dossiers (<span id="archiveCountBadge">0</span>)</span>
+      </button>
+
       <button id="btnOpenPairModal" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium transition shadow-sm text-xs">
         <i class="fa-solid fa-qrcode text-emerald-400"></i>
         <span>Mobile Link</span>
@@ -408,6 +413,36 @@
     <div class="mt-5">
       <button onclick="document.getElementById('pairModal').close()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl border border-slate-700 text-xs transition">
         Done
+      </button>
+    </div>
+  </dialog>
+
+  <!-- Archived Cases Vault Modal (Browsing Mobile & Desktop Generated Dossiers) -->
+  <dialog id="vaultModal" closedby="any" class="glass-panel text-white p-6 rounded-2xl max-w-3xl w-full border border-slate-700 shadow-2xl backdrop:bg-slate-950/80">
+    <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-800">
+      <div>
+        <h3 class="text-base font-bold flex items-center gap-2 text-emerald-400">
+          <i class="fa-solid fa-folder-tree"></i> Desktop Dossier Archive Vault
+        </h3>
+        <p class="text-xs text-slate-400">Cases inspected on phone or desktop, permanently archived in <code class="font-mono text-emerald-300">output/</code></p>
+      </div>
+      <button onclick="document.getElementById('vaultModal').close()" class="text-slate-400 hover:text-white text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Vault Table / Card Container -->
+    <div id="vaultListContainer" class="max-h-[60vh] overflow-y-auto space-y-2.5 pr-1">
+      <div class="text-center py-8 text-slate-400 text-xs">
+        <i class="fa-solid fa-spinner fa-spin text-base text-emerald-400 mb-2 block"></i>
+        Loading archived cases from desktop filesystem...
+      </div>
+    </div>
+
+    <div class="mt-5 pt-3 border-t border-slate-800 flex justify-between items-center">
+      <span class="text-[11px] text-slate-400">Click any dossier to view PDF, Markdown, or JSON</span>
+      <button onclick="document.getElementById('vaultModal').close()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl border border-slate-700 text-xs transition">
+        Close Vault
       </button>
     </div>
   </dialog>
@@ -812,9 +847,85 @@
       }
     }
 
+    // Vault Modal Logic (Browsing Desktop & Mobile Saved Dossiers)
+    const vaultModal = document.getElementById("vaultModal");
+    const btnOpenVaultModal = document.getElementById("btnOpenVaultModal");
+    const vaultListContainer = document.getElementById("vaultListContainer");
+    const archiveCountBadge = document.getElementById("archiveCountBadge");
+
+    async function loadArchivedCases() {
+      try {
+        const resp = await fetch("/api/cases");
+        const cases = await resp.json();
+        archiveCountBadge.innerText = cases.length;
+
+        if (!cases || cases.length === 0) {
+          vaultListContainer.innerHTML = `
+            <div class="text-center py-8 text-slate-500 text-xs">
+              <i class="fa-solid fa-box-open text-2xl mb-2 text-slate-600 block"></i>
+              No cases found in desktop output archive yet.
+            </div>`;
+          return;
+        }
+
+        vaultListContainer.innerHTML = "";
+        cases.forEach(c => {
+          const isHighRisk = (c.discrepancy_score || 0.0) >= 0.70;
+          const scoreColor = isHighRisk ? "text-red-400 bg-red-950/80 border-red-800" : "text-emerald-400 bg-emerald-950/80 border-emerald-800";
+          const card = document.createElement("div");
+          card.className = "p-3.5 bg-slate-900/90 rounded-xl border border-slate-800 hover:border-slate-700 transition flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3";
+          
+          card.innerHTML = `
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="font-mono font-bold text-xs text-white">${c.case_id}</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded border ${scoreColor}">
+                  Score: ${(c.discrepancy_score !== undefined ? c.discrepancy_score.toFixed(2) : "N/A")}
+                </span>
+                ${c.cites_appendix ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">CITES ${c.cites_appendix}</span>` : ""}
+              </div>
+              <p class="text-xs text-slate-300 font-medium">${c.declared_item || c.suspected_species || "Case Dossier"}</p>
+              <div class="flex items-center gap-3 text-[10px] text-slate-500 font-mono">
+                ${c.has_photo ? '<span class="text-emerald-400"><i class="fa-solid fa-camera"></i> Photo Archived</span>' : ''}
+                <span>${new Date(c.timestamp * 1000).toLocaleString()}</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              ${c.has_pdf ? `<a href="/api/dossier/${c.case_id}/pdf" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] flex items-center gap-1 transition"><i class="fa-solid fa-file-pdf"></i> PDF</a>` : ''}
+              ${c.has_json ? `<a href="/api/dossier/${c.case_id}/json" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] border border-slate-700 flex items-center gap-1 transition"><i class="fa-solid fa-code"></i> JSON</a>` : ''}
+            </div>
+          `;
+          vaultListContainer.appendChild(card);
+        });
+      } catch (e) {
+        console.warn("Could not load /api/cases:", e);
+      }
+    }
+
+    btnOpenVaultModal.addEventListener("click", () => {
+      loadArchivedCases();
+      vaultModal.showModal();
+    });
+
+    // Light-dismiss fallback for vault modal
+    if (!('closedBy' in HTMLDialogElement.prototype)) {
+      vaultModal.addEventListener('click', (event) => {
+        if (event.target !== vaultModal) return;
+        const rect = vaultModal.getBoundingClientRect();
+        const inDialog = (
+          rect.top <= event.clientY &&
+          event.clientY <= rect.top + rect.height &&
+          rect.left <= event.clientX &&
+          event.clientX <= rect.left + rect.width
+        );
+        if (!inDialog) vaultModal.close();
+      });
+    }
+
     // Initial load
     loadScenario("scenario_ivory");
     initMobilePairing();
+    loadArchivedCases();
   </script>
 </body>
 </html>

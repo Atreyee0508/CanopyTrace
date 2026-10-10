@@ -285,6 +285,36 @@ def download_json(case_id: str):
     return FileResponse(str(json_path), media_type="application/json", filename=f"{case_id}_dossier.json")
 
 
+@app.get("/api/cases")
+def list_archived_cases() -> List[Dict[str, Any]]:
+    """Lists all archived cases and dossiers stored in the desktop output directory."""
+    cases = []
+    if OUTPUT_DIR.exists():
+        for case_dir in sorted(OUTPUT_DIR.iterdir(), key=lambda p: p.stat().st_mtime, reverse=True):
+            if case_dir.is_dir():
+                cid = case_dir.name
+                json_file = case_dir / f"{cid}_dossier.json"
+                meta: Dict[str, Any] = {
+                    "case_id": cid,
+                    "timestamp": case_dir.stat().st_mtime,
+                    "has_pdf": (case_dir / f"{cid}_dossier.pdf").exists(),
+                    "has_json": json_file.exists(),
+                    "has_photo": any(case_dir.glob("inspection_*")),
+                }
+                if json_file.exists():
+                    try:
+                        with open(json_file, "r", encoding="utf-8") as f:
+                            data = json.load(f)
+                            meta["suspected_species"] = data.get("forensic_output", {}).get("suspected_actual_species", "Unknown")
+                            meta["discrepancy_score"] = data.get("forensic_output", {}).get("discrepancy_score", 0.0)
+                            meta["cites_appendix"] = data.get("forensic_output", {}).get("cites_appendix", "None")
+                            meta["declared_item"] = data.get("manifest", {}).get("declared_item_name", cid)
+                    except Exception:
+                        pass
+                cases.append(meta)
+    return cases
+
+
 @app.get("/", response_class=HTMLResponse)
 def dashboard_html() -> str:
     """Returns the single-page responsive customs inspection dashboard."""
