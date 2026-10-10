@@ -35,6 +35,7 @@ if os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
 
 os.environ.setdefault("CANOPYTRACE_MOCK_HARNESS", "1")
 
+from urllib.parse import parse_qs, urlencode, unquote
 from starlette.types import ASGIApp, Scope, Receive, Send
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -47,33 +48,25 @@ class VercelPathMiddleware:
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send):
         if scope["type"] in ("http", "websocket"):
-            headers = dict(scope.get("headers", []))
-            orig_path = (
-                headers.get(b"x-matched-path")
-                or headers.get(b"x-forwarded-uri")
-                or headers.get(b"x-original-uri")
-            )
-            if orig_path:
-                try:
-                    path_str = orig_path.decode("utf-8").split("?")[0]
-                    if path_str and path_str != "/api/index.py":
-                        scope["path"] = path_str
-                        scope["raw_path"] = path_str.encode("utf-8")
-                except Exception:
-                    pass
+            qs_bytes = scope.get("query_string", b"")
+            qs_str = qs_bytes.decode("utf-8")
+            parsed_qs = parse_qs(qs_str, keep_blank_values=True)
+            
+            if "path" in parsed_qs:
+                target_path = parsed_qs.pop("path")[0]
+                if not target_path.startswith("/"):
+                    target_path = "/" + target_path
+                scope["path"] = target_path
+                scope["raw_path"] = target_path.encode("utf-8")
+                # Rebuild remaining query string without 'path'
+                flat_qs = [(k, v) for k, values in parsed_qs.items() for v in values]
+                scope["query_string"] = urlencode(flat_qs).encode("utf-8")
+            elif scope.get("path") in ("/api/index.py", "/api/index"):
+                # Default root route when invoked directly
+                scope["path"] = "/"
+                scope["raw_path"] = b"/"
+
         await self.asgi_app(scope, receive, send)
-
-
-@app.get("/api/index.py")
-async def vercel_diagnostic(request: Request):
-    """Fallback diagnostic endpoint when requests hit /api/index.py directly."""
-    return JSONResponse({
-        "status": "healthy",
-        "service": "CanopyTrace Forensic API",
-        "message": "Direct endpoint hit on api/index.py",
-        "matched_path": request.headers.get("x-matched-path"),
-        "headers": {k: v for k, v in request.headers.items() if not k.startswith("sec-") and "auth" not in k.lower()}
-    })
 
 
 # Wrap with VercelPathMiddleware
