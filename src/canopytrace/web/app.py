@@ -129,7 +129,7 @@ from canopytrace.schemas import MorphologyMeasurement
 
 @app.post("/api/mobile/inspect")
 async def inspect_mobile_cargo(
-    photo: UploadFile = File(...),
+    photo: Optional[UploadFile] = File(None),
     category: Optional[str] = Form(None),
     specimen_category: Optional[str] = Form(None),
     declared_item: str = Form(...),
@@ -144,7 +144,7 @@ async def inspect_mobile_cargo(
 ) -> Dict[str, Any]:
     """
     Ingests mobile camera photo and field inspection data:
-    1. Saves and archives photo permanently in desktop output directory.
+    1. Saves and archives photo permanently in desktop output directory (or generates placeholder if omitted).
     2. Constructs physical measurements.
     3. Runs schema-constrained Gemma 4 e2b triage pipeline.
     4. Automatically dispatches authority alerts if discrepancy threshold is breached.
@@ -155,11 +155,22 @@ async def inspect_mobile_cargo(
         case_dir = OUTPUT_DIR / cid
         case_dir.mkdir(parents=True, exist_ok=True)
 
-        # 1. Save uploaded photo permanently on desktop
-        photo_filename = f"inspection_{photo.filename or 'photo.jpg'}"
-        photo_path = case_dir / photo_filename
-        with open(photo_path, "wb") as buffer:
-            shutil.copyfileobj(photo.file, buffer)
+        # 1. Save uploaded photo permanently on desktop (or create clean specimen placeholder)
+        photo_path = None
+        if photo and photo.filename:
+            photo_filename = f"inspection_{photo.filename}"
+            photo_path = case_dir / photo_filename
+            with open(photo_path, "wb") as buffer:
+                shutil.copyfileobj(photo.file, buffer)
+        else:
+            # Generate clean fallback evidence image
+            from PIL import Image, ImageDraw
+            photo_filename = f"inspection_placeholder_{cid}.jpg"
+            photo_path = case_dir / photo_filename
+            img = Image.new("RGB", (400, 300), color=(15, 23, 42))
+            draw = ImageDraw.Draw(img)
+            draw.text((20, 140), f"Specimen Evidence: {cid}", fill=(16, 185, 129))
+            img.save(photo_path, format="JPEG")
 
         # 2. Build physical measurements based on category and caliper angle
         resolved_category = (category or specimen_category or "unknown").lower().strip()
