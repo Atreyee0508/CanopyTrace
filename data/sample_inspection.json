@@ -1,0 +1,33 @@
+{
+  "inspection_id": "INSP-2026-001",
+  "inspector_id": "CUSTOMS-OFFICER-44",
+  "checkpoint_location": "Hong Kong Maritime Berth 3",
+  "observed_specimen_category": "ivory",
+  "measurements": [
+    {
+      "feature_name": "schreger_angle_outer",
+      "value": 124.0,
+      "unit": "degrees",
+      "instrument": "optical_caliper",
+      "confidence": 0.98
+    },
+    {
+      "feature_name": "haversian_canals_present",
+      "value": false,
+      "instrument": "stereomicroscope_20x",
+      "confidence": 1.0
+    },
+    {
+      "feature_name": "molding_seams_present",
+      "value": false,
+      "instrument": "visual_magnification",
+      "confidence": 1.0
+    }
+  ],
+  "visual_characteristics": [
+    "Cross-section exhibits prominent outer Schreger line intersections with obtuse angles",
+    "Absence of Haversian vascular osteons confirms true dentine, not mammalian bone",
+    "Absence of injection seam lines confirms natural biological matrix, not synthetic polymer"
+  ],
+  "notes": "Suspected modern elephant ivory disguised as mammoth to bypass CITES Appendix I."
+}

@@ -1,0 +1,16 @@
+{
+  "manifest_id": "MAN-2026-001",
+  "waybill_number": "WB-884920",
+  "shipper": "Siberian Antique Crafts Trading Co.",
+  "consignee": "Oriental Luxury Curios Ltd.",
+  "declared_item_name": "Antique Mammoth Carvings",
+  "declared_scientific_name": "Mammuthus primigenius",
+  "hs_code": "9601.90",
+  "declared_quantity": 450.0,
+  "declared_unit": "kg",
+  "country_of_origin": "RU",
+  "transit_countries": ["AE"],
+  "destination_country": "HK",
+  "permit_numbers": [],
+  "declared_commercial_form": "carved"
+}
