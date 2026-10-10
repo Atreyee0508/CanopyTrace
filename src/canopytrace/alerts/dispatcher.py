@@ -8,7 +8,10 @@ import requests
 
 from canopytrace.schemas import AuthorityAlertPayload, ForensicTriageOutput, ShippingManifest, PhysicalInspection
 
-DEFAULT_ALERT_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "alerts"
+if os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+    DEFAULT_ALERT_DIR = Path("/tmp/canopytrace/data/alerts")
+else:
+    DEFAULT_ALERT_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "alerts"
 SEIZURE_THRESHOLD = 0.70
 
 

@@ -6,17 +6,28 @@ import sqlite3
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-DEFAULT_DB_PATH = Path(__file__).resolve().parent.parent.parent.parent / "data" / "reference.db"
+if os.environ.get("CANOPYTRACE_DB_PATH"):
+    DEFAULT_DB_PATH = Path(os.environ["CANOPYTRACE_DB_PATH"])
+elif os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+    DEFAULT_DB_PATH = Path("/tmp/canopytrace/data/reference.db")
+else:
+    DEFAULT_DB_PATH = Path(__file__).resolve().parent.parent.parent.parent / "data" / "reference.db"
 
 
 def get_db_connection(db_path: Optional[Path] = None) -> sqlite3.Connection:
     """Returns a connection to the SQLite reference database with WAL mode and row factory."""
-    path = db_path or DEFAULT_DB_PATH
+    path = db_path or (Path(os.environ["CANOPYTRACE_DB_PATH"]) if os.environ.get("CANOPYTRACE_DB_PATH") else DEFAULT_DB_PATH)
     path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(str(path))
     conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA journal_mode = WAL;")
-    conn.execute("PRAGMA foreign_keys = ON;")
+    try:
+        conn.execute("PRAGMA journal_mode = WAL;")
+    except Exception:
+        pass
+    try:
+        conn.execute("PRAGMA foreign_keys = ON;")
+    except Exception:
+        pass
     return conn
 
 

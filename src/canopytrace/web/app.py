@@ -21,10 +21,19 @@ app = FastAPI(
 
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
-OUTPUT_DIR = Path(__file__).resolve().parent.parent.parent.parent / "output"
 
-STATIC_DIR.mkdir(parents=True, exist_ok=True)
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+# In serverless environments like Vercel, the filesystem outside /tmp is read-only
+if os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+    OUTPUT_DIR = Path("/tmp/canopytrace/output")
+else:
+    OUTPUT_DIR = Path(__file__).resolve().parent.parent.parent.parent / "output"
+
+try:
+    STATIC_DIR.mkdir(parents=True, exist_ok=True)
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+except Exception:
+    OUTPUT_DIR = Path("/tmp/canopytrace/output")
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 @app.get("/api/health")

@@ -7,7 +7,12 @@ from typing import Any, Dict, List, Optional
 from canopytrace.db import get_db_connection
 from canopytrace.schemas import EscalationCase, ShippingManifest, PhysicalInspection
 
-DEFAULT_ESCALATION_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "escalations"
+import os
+
+if os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+    DEFAULT_ESCALATION_DIR = Path("/tmp/canopytrace/data/escalations")
+else:
+    DEFAULT_ESCALATION_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "escalations"
 
 
 def enqueue_escalation(
