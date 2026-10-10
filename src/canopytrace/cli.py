@@ -25,14 +25,17 @@ def main() -> None:
     pass
 
 
+from canopytrace.core.harness import get_forensic_harness
+
 @main.command()
 @click.option("--manifest", required=True, type=click.Path(exists=True), help="Path to manifest JSON file.")
 @click.option("--inspection", required=True, type=click.Path(exists=True), help="Path to physical inspection JSON file.")
 @click.option("--case-id", default=None, help="Optional custom case ID.")
 @click.option("--outdir", default=None, help="Directory to export compiled dossier files.")
-def inspect(manifest: str, inspection: str, case_id: Optional[str], outdir: Optional[str]) -> None:
+@click.option("--model", default="gemma4:e2b", help="Model name (default: gemma4:e2b).")
+def inspect(manifest: str, inspection: str, case_id: Optional[str], outdir: Optional[str], model: str) -> None:
     """Run full forensic triage on a manifest and physical inspection."""
-    with console.status("[bold green]Executing CanopyTrace Forensic Verification Pipeline..."):
+    with console.status(f"[bold green]Executing CanopyTrace Pipeline with {model}..."):
         with open(manifest, "r", encoding="utf-8") as f:
             manifest_obj = ShippingManifest.model_validate(json.load(f))
 
@@ -40,7 +43,8 @@ def inspect(manifest: str, inspection: str, case_id: Optional[str], outdir: Opti
             inspection_obj = PhysicalInspection.model_validate(json.load(f))
 
         out_path = Path(outdir) if outdir else None
-        res = run_forensic_pipeline(manifest_obj, inspection_obj, case_id=case_id, output_dir=out_path)
+        harness = get_forensic_harness(model_name=model)
+        res = run_forensic_pipeline(manifest_obj, inspection_obj, case_id=case_id, output_dir=out_path, harness=harness)
 
     # Format result output
     discrepancy = res["discrepancy_score"]

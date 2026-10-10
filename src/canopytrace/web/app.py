@@ -57,6 +57,8 @@ def approve_escalation(
     return {"success": success, "case_id": case_id, "species": species}
 
 
+from canopytrace.core.harness import get_forensic_harness
+
 @app.post("/api/inspect")
 async def inspect_cargo(request: Request) -> Dict[str, Any]:
     try:
@@ -64,6 +66,7 @@ async def inspect_cargo(request: Request) -> Dict[str, Any]:
         manifest_data = body.get("manifest")
         inspection_data = body.get("inspection")
         case_id = body.get("case_id")
+        model_name = body.get("model", "gemma4:e2b")
 
         if not manifest_data or not inspection_data:
             raise HTTPException(status_code=400, detail="Missing 'manifest' or 'inspection' payload.")
@@ -71,7 +74,8 @@ async def inspect_cargo(request: Request) -> Dict[str, Any]:
         manifest = ShippingManifest.model_validate(manifest_data)
         inspection = PhysicalInspection.model_validate(inspection_data)
 
-        res = run_forensic_pipeline(manifest, inspection, case_id=case_id)
+        harness = get_forensic_harness(model_name=model_name)
+        res = run_forensic_pipeline(manifest, inspection, case_id=case_id, harness=harness)
         # Format for JSON return
         return {
             "case_id": res["case_id"],
