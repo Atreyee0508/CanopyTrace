@@ -268,7 +268,7 @@ class LocalServerForensicHarness(BaseForensicHarness):
         self.model_name = model_name or self._detect_model()
 
     def _detect_model(self) -> str:
-        """Auto-detects available Gemma or installed model from Ollama/server."""
+        """Auto-detects available Gemma or installed model from Ollama/server, prioritizing gemma4:e2b."""
         env_model = os.environ.get("CANOPYTRACE_LLM_MODEL")
         if env_model:
             return env_model
@@ -277,7 +277,11 @@ class LocalServerForensicHarness(BaseForensicHarness):
             if res.status_code == 200:
                 data = res.json()
                 models = [m.get("id", "") for m in data.get("data", [])]
-                # Prioritize any gemma model
+                # 1. Prioritize gemma4:e2b
+                for m in models:
+                    if "gemma4:e2b" in m.lower():
+                        return m
+                # 2. Prioritize any other gemma model
                 for m in models:
                     if "gemma" in m.lower():
                         return m
@@ -285,7 +289,7 @@ class LocalServerForensicHarness(BaseForensicHarness):
                     return models[0]
         except Exception:
             pass
-        return "gemma2:2b"
+        return "gemma4:e2b"
 
     def synthesize(
         self,
@@ -334,13 +338,14 @@ class LocalServerForensicHarness(BaseForensicHarness):
 def get_forensic_harness(
     model_path: Optional[str] = None,
     server_url: Optional[str] = None,
+    model_name: Optional[str] = None,
     force_mock: bool = False,
 ) -> BaseForensicHarness:
     """
     Factory creating appropriate Gemma forensic harness:
       1. If forced or testing (CANOPYTRACE_MOCK_HARNESS=1) -> MockForensicHarness
       2. If GGUF weights provided -> LlamaCppForensicHarness with GBNF grammar
-      3. If local Ollama/vLLM server running -> LocalServerForensicHarness (using Gemma)
+      3. If local Ollama/vLLM server running -> LocalServerForensicHarness (prioritizing gemma4:e2b)
       4. Fallback -> MockForensicHarness
     """
     if force_mock or os.environ.get("CANOPYTRACE_MOCK_HARNESS", "0") == "1":
@@ -354,10 +359,11 @@ def get_forensic_harness(
 
     # Check configured or running Ollama server
     target_url = server_url or os.environ.get("CANOPYTRACE_LLM_SERVER", "http://localhost:11434/v1")
+    selected_model = model_name or os.environ.get("CANOPYTRACE_LLM_MODEL", "gemma4:e2b")
     try:
         check = requests.get(f"{target_url.rstrip('/')}/models", timeout=2)
         if check.status_code == 200:
-            return LocalServerForensicHarness(api_base=target_url)
+            return LocalServerForensicHarness(api_base=target_url, model_name=selected_model)
     except Exception:
         pass
 

@@ -1,6 +1,7 @@
 """FastAPI local server providing REST API and responsive field web dashboard."""
 
 import json
+import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from fastapi import FastAPI, HTTPException, Request, Form
@@ -88,6 +89,155 @@ async def inspect_cargo(request: Request) -> Dict[str, Any]:
             "alert_dispatched": res["alert_dispatched"],
             "is_novel_escalation": res["is_novel_escalation"],
             "dossier_package": res["dossier_package"],
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+def get_local_ip() -> str:
+    """Finds the local network IP address of the machine."""
+    import socket
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"
+
+
+@app.get("/api/server-info")
+def server_info(request: Request) -> Dict[str, Any]:
+    """Returns the server's local LAN address and status for mobile QR pairing."""
+    port = request.url.port or 8001
+    local_ip = get_local_ip()
+    return {
+        "status": "online",
+        "service": "CanopyTrace Forensic Gateway",
+        "local_ip": local_ip,
+        "port": port,
+        "base_url": f"http://{local_ip}:{port}",
+        "active_model": os.environ.get("CANOPYTRACE_LLM_MODEL", "gemma4:e2b"),
+    }
+
+
+from fastapi import UploadFile, File
+import shutil
+import uuid
+from canopytrace.schemas import MorphologyMeasurement
+
+@app.post("/api/mobile/inspect")
+async def inspect_mobile_cargo(
+    photo: UploadFile = File(...),
+    category: str = Form(...),
+    declared_item: str = Form(...),
+    declared_scientific: Optional[str] = Form(None),
+    origin_country: str = Form("NG"),
+    checkpoint_location: str = Form("Mobile Port Terminal Unit"),
+    caliper_angle: Optional[float] = Form(None),
+    model: str = Form("gemma4:e2b"),
+    case_id: Optional[str] = Form(None),
+) -> Dict[str, Any]:
+    """
+    Ingests mobile camera photo and field inspection data:
+    1. Saves and archives photo permanently in desktop output directory.
+    2. Constructs physical measurements.
+    3. Runs schema-constrained Gemma 4 e2b triage pipeline.
+    4. Automatically dispatches authority alerts if discrepancy threshold is breached.
+    5. Returns comprehensive evidentiary dossier package to mobile client.
+    """
+    try:
+        cid = case_id or f"CASE-MOB-{uuid.uuid4().hex[:6].upper()}"
+        case_dir = OUTPUT_DIR / cid
+        case_dir.mkdir(parents=True, exist_ok=True)
+
+        # 1. Save uploaded photo permanently on desktop
+        photo_filename = f"inspection_{photo.filename or 'photo.jpg'}"
+        photo_path = case_dir / photo_filename
+        with open(photo_path, "wb") as buffer:
+            shutil.copyfileobj(photo.file, buffer)
+
+        # 2. Build physical measurements based on category and caliper angle
+        measurements: List[MorphologyMeasurement] = []
+        cat_lower = category.lower().strip()
+
+        if "ivory" in cat_lower:
+            angle_val = float(caliper_angle) if caliper_angle is not None else 124.0
+            measurements = [
+                MorphologyMeasurement(feature_name="schreger_angle_outer", value=angle_val, unit="degrees", instrument="mobile_caliper"),
+                MorphologyMeasurement(feature_name="haversian_canals_present", value=False),
+                MorphologyMeasurement(feature_name="molding_seams_present", value=False),
+            ]
+        elif "scale" in cat_lower or "keratin" in cat_lower or "pangolin" in cat_lower:
+            measurements = [
+                MorphologyMeasurement(feature_name="dorsal_keel_count", value=3, instrument="mobile_macro_lens"),
+                MorphologyMeasurement(feature_name="imbrication_pattern", value="overlapping_shingle"),
+            ]
+        elif "timber" in cat_lower or "wood" in cat_lower:
+            measurements = [
+                MorphologyMeasurement(feature_name="vessel_porosity", value="diffuse_porous", instrument="mobile_lens"),
+                MorphologyMeasurement(feature_name="storied_rays_ripple_marks", value=True),
+                MorphologyMeasurement(feature_name="uv_water_fluorescence", value="negative"),
+            ]
+        elif "turtle" in cat_lower or "bekko" in cat_lower or "reptile" in cat_lower:
+            measurements = [
+                MorphologyMeasurement(feature_name="scute_layering", value="imbricate_keratin"),
+                MorphologyMeasurement(feature_name="internal_gas_bubbles", value=False),
+                MorphologyMeasurement(feature_name="molding_seams_present", value=False),
+            ]
+        elif "bone" in cat_lower:
+            measurements = [
+                MorphologyMeasurement(feature_name="haversian_canals_present", value=True),
+                MorphologyMeasurement(feature_name="schreger_pattern_present", value=False),
+            ]
+        else:
+            measurements = [
+                MorphologyMeasurement(feature_name="unidentified_morphology_metric", value=1.0),
+            ]
+
+        # 3. Build Manifest & Inspection objects
+        manifest = ShippingManifest(
+            manifest_id=f"MAN-{cid}",
+            waybill_number=f"WB-{cid}",
+            shipper="Mobile Field Cargo Unit",
+            consignee="Customs Detention Hold",
+            declared_item_name=declared_item,
+            declared_scientific_name=declared_scientific,
+            declared_quantity=100.0,
+            declared_unit="kg",
+            country_of_origin=origin_country.strip().upper(),
+            destination_country="US",
+        )
+
+        inspection = PhysicalInspection(
+            inspection_id=f"INSP-{cid}",
+            inspector_id="FIELD-OFFICER-MOBILE",
+            checkpoint_location=checkpoint_location,
+            observed_specimen_category=category,
+            measurements=measurements,
+            photos=[str(photo_path)],
+        )
+
+        # 4. Execute forensic verification pipeline
+        harness = get_forensic_harness(model_name=model)
+        res = run_forensic_pipeline(manifest, inspection, case_id=cid, output_dir=case_dir, harness=harness)
+
+        return {
+            "case_id": cid,
+            "discrepancy_score": res["discrepancy_score"],
+            "suspected_species": res["suspected_species"],
+            "cites_appendix": res["cites_appendix"],
+            "flagged_indicators": res["flagged_indicators"],
+            "smuggling_mos": res["smuggling_mos"],
+            "forensic_output": res["forensic_output"].model_dump(),
+            "alert_dispatched": res["alert_dispatched"],
+            "is_novel_escalation": res["is_novel_escalation"],
+            "photo_archived_path": str(photo_path),
+            "pdf_url": f"/api/dossier/{cid}/pdf",
+            "markdown_url": f"/api/dossier/{cid}/markdown",
+            "json_url": f"/api/dossier/{cid}/json",
+            "sha256_hash": res["dossier_package"]["sha256_hash"],
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

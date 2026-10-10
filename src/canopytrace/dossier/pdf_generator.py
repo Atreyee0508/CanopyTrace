@@ -146,6 +146,21 @@ def generate_pdf_dossier(case_data: Dict[str, Any], output_pdf_path: Path, sha25
     elements.append(meta_table)
     elements.append(Spacer(1, 8))
 
+    # Optional Photographic Evidence Embedding
+    photos = inspection.get("photos", [])
+    if photos and isinstance(photos, list) and os.path.exists(str(photos[0])):
+        try:
+            from PIL import Image as PILImage
+            from reportlab.platypus import Image as RLImage
+            # Verify image is valid readable image format
+            with PILImage.open(str(photos[0])) as p_img:
+                p_img.verify()
+            elements.append(Paragraph("<b>ON-SITE PHOTOGRAPHIC EVIDENCE:</b>", section_heading))
+            elements.append(RLImage(str(photos[0]), width=220, height=140))
+            elements.append(Spacer(1, 8))
+        except Exception:
+            pass
+
     # Flagged Contradictions & Modus Operandi
     elements.append(Paragraph("2. FORENSIC CONTRADICTIONS & SMUGGLING MODUS OPERANDI", section_heading))
     flagged = forensic.get("flagged_indicators", [])

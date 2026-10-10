@@ -6,6 +6,7 @@
   <title>CanopyTrace — AI Forensic Wildlife & Timber Triage</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     .gradient-header { background: linear-gradient(135deg, #0f172a 0%, #064e3b 100%); }
   </style>
@@ -263,6 +264,36 @@
           <button id="btnApproveEsc" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 rounded transition">
             Approve & Ingest into Reference Database
           </button>
+        </div>
+      </div>
+
+      <!-- Mobile Companion Pairing Card -->
+      <div class="bg-gradient-to-br from-emerald-950 to-slate-900 text-white p-5 rounded-xl shadow-md border border-emerald-800 space-y-4">
+        <div class="flex justify-between items-center">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
+            <i class="fa-solid fa-mobile-screen text-emerald-400"></i> Mobile Companion Pairing
+          </h3>
+          <span class="text-[10px] font-mono bg-emerald-900/80 text-emerald-300 border border-emerald-700 px-2 py-0.5 rounded-full">
+            LAN Sync Ready
+          </span>
+        </div>
+        <p class="text-xs text-slate-300">
+          Scan with the CanopyTrace mobile app or enter the server host to upload on-site field photos directly for Gemma 4 triage.
+        </p>
+        <div class="flex flex-col sm:flex-row items-center gap-4 bg-slate-950/60 p-3 rounded-lg border border-slate-800">
+          <div id="qrcode" class="bg-white p-2 rounded shadow-inner flex items-center justify-center min-w-[120px] min-h-[120px]"></div>
+          <div class="space-y-1 text-xs font-mono w-full">
+            <span class="text-slate-400 text-[10px] uppercase block">Pairing Endpoint</span>
+            <div id="pairingUrl" class="text-emerald-400 font-bold break-all bg-slate-900 p-2 rounded border border-slate-800">
+              http://127.0.0.1:8001
+            </div>
+            <div class="text-[10px] text-slate-400 pt-1">
+              Active Model: <span id="serverModel" class="text-slate-200">gemma4:e2b</span>
+            </div>
+            <div class="text-[10px] text-slate-400">
+              Endpoint: <span class="text-emerald-300">/api/mobile/inspect</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -552,6 +583,31 @@
 
     // Initial load
     loadScenario("scenario_ivory");
+
+    // Fetch Server Pairing Info and render QR Code
+    async function initMobilePairing() {
+      try {
+        const resp = await fetch("/api/server-info");
+        const info = await resp.json();
+        const serverUrl = info.server_url || window.location.origin;
+        document.getElementById("pairingUrl").innerText = serverUrl;
+        document.getElementById("serverModel").innerText = info.active_model || "gemma4:e2b";
+
+        const qrContainer = document.getElementById("qrcode");
+        qrContainer.innerHTML = "";
+        new QRCode(qrContainer, {
+          text: serverUrl,
+          width: 104,
+          height: 104,
+          colorDark: "#064e3b",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      } catch (e) {
+        console.warn("Could not load /api/server-info:", e);
+      }
+    }
+    initMobilePairing();
   </script>
 </body>
 </html>
