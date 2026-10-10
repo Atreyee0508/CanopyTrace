@@ -1,0 +1,96 @@
+smuggling_patterns:
+  - id: "MO-IVO-001"
+    name: "Antique Mammoth Ivory Camouflage"
+    category: "species_substitution"
+    description: "Declaring modern elephant tusk or carved articles as extinct Woolly Mammoth ivory (Mammuthus primigenius) to exploit unregulated trade in Pleistocene mammoth remains."
+    target_contraband: "Elephant Ivory (Loxodonta africana / Elephas maximus)"
+    triggers:
+      manifest_keywords: ["mammoth", "mammuthus", "antique", "extinct", "fossil", "paleontological"]
+      physical_indicators:
+        - "schreger_angle_outer > 115"
+        - "haversian_canals_present == false"
+    risk_weight: 0.95
+    cites_appendix_breach: "I"
+    recommended_lab_assays:
+      - "radiocarbon_dating_c14"
+      - "dna_barcoding_cytochrome_b"
+
+  - id: "MO-IVO-002"
+    name: "Domestic Bovine Bone Craft Masking"
+    category: "commercial_misdeclaration"
+    description: "Declaring carved elephant ivory trinkets or piano keys as cheap domestic cow bone or buffalo horn handicrafts."
+    target_contraband: "Elephant Ivory (Loxodonta / Elephas)"
+    triggers:
+      manifest_keywords: ["bovine bone", "cow bone", "bone carving", "buffalo bone", "artisan bone craft"]
+      physical_indicators:
+        - "haversian_canals_present == false"
+        - "schreger_pattern_present == true"
+    risk_weight: 0.92
+    cites_appendix_breach: "I"
+    recommended_lab_assays:
+      - "stereomicroscopy_osteon_inspection"
+      - "radiocarbon_dating_c14"
+
+  - id: "MO-PAN-001"
+    name: "Keratin Agricultural Byproduct Concealment"
+    category: "commodity_concealment"
+    description: "Concealing illicit pangolin scales in maritime cargo shipping sacks declared as legal agricultural keratin, dried cattle hooves, cow horns, oyster shells, or fish scales."
+    target_contraband: "Pangolin Scales (Manis spp.)"
+    triggers:
+      manifest_keywords: ["cattle horn", "bovine hoof", "keratin flakes", "fish scale", "oyster shell", "organic fertilizer"]
+      physical_indicators:
+        - "dorsal_keel_count >= 1"
+        - "imbrication_pattern == overlapping_shingle"
+    risk_weight: 0.96
+    cites_appendix_breach: "I"
+    recommended_lab_assays:
+      - "dna_barcoding_cytochrome_b"
+      - "ftir_spectroscopy"
+
+  - id: "MO-TIM-001"
+    name: "Plantation Teak Misdeclaration"
+    category: "species_substitution"
+    description: "Exporting protected CITES Appendix II/I rosewood logs (Dalbergia spp.) misdeclared under Harmonized System codes for non-regulated plantation teak (Tectona grandis) or eucalyptus."
+    target_contraband: "Rosewood (Dalbergia spp.)"
+    triggers:
+      manifest_keywords: ["teak", "tectona grandis", "plantation wood", "eucalyptus", "sawn timber", "decking logs"]
+      physical_indicators:
+        - "vessel_porosity == diffuse_porous"
+        - "storied_rays_ripple_marks == true"
+    risk_weight: 0.88
+    cites_appendix_breach: "II"
+    recommended_lab_assays:
+      - "wood_anatomy_thin_section"
+      - "direct_analysis_in_real_time_dart_tofms"
+
+  - id: "MO-REP-001"
+    name: "Synthetic Celluloid / Resin Craft Disguise"
+    category: "synthetic_imitation_camouflage"
+    description: "Smuggling genuine Hawksbill sea turtle shell (bekko) articles declared as imitation plastic, acrylic, or synthetic celluloid resin decorative jewelry."
+    target_contraband: "Hawksbill Sea Turtle Shell (Eretmochelys imbricata)"
+    triggers:
+      manifest_keywords: ["synthetic resin", "acrylic crafts", "celluloid jewelry", "plastic ornaments", "faux tortoiseshell", "celluloid", "synthetic", "resin", "acrylic", "plastic"]
+      physical_indicators:
+        - "scute_layering == imbricate_keratin"
+        - "internal_gas_bubbles == false"
+        - "molding_seams_present == false"
+    risk_weight: 0.90
+    cites_appendix_breach: "I"
+    recommended_lab_assays:
+      - "ftir_spectroscopy"
+      - "differential_scanning_calorimetry"
+
+  - id: "MO-ROU-001"
+    name: "Triangular Transit Origin Obfuscation"
+    category: "logistical_routing_fraud"
+    description: "Transshipping wild wildlife or timber harvested in source range states through non-signatory or transit ports, declaring export permits issued by a country where the species does not occur natively."
+    target_contraband: "Wild specimens from non-range transit origins"
+    triggers:
+      manifest_keywords: ["transshipment", "in-transit", "free-zone"]
+      physical_indicators:
+        - "declared_origin_not_in_iucn_range == true"
+    risk_weight: 0.85
+    cites_appendix_breach: "I"
+    recommended_lab_assays:
+      - "stable_isotope_geographical_provenancing"
+      - "dna_geographic_assignment"

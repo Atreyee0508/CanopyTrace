@@ -1,0 +1,56 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "canopytrace"
+version = "0.1.0"
+description = "AI Forensic Fingerprinting for Illegal Wildlife and Timber Trade Verification"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "CanopyTrace Contributors" }
+]
+keywords = [
+    "cites",
+    "wildlife-trafficking",
+    "forensics",
+    "timber-trade",
+    "gemma",
+    "customs-inspection",
+    "agentskills"
+]
+dependencies = [
+    "pydantic>=2.5.0",
+    "click>=8.1.0",
+    "rich>=13.7.0",
+    "fastapi>=0.109.0",
+    "uvicorn>=0.27.0",
+    "jinja2>=3.1.0",
+    "reportlab>=4.0.0",
+    "pyyaml>=6.0.1",
+    "requests>=2.31.0",
+    "python-multipart>=0.0.6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "httpx>=0.26.0",
+]
+llm = [
+    "llama-cpp-python>=0.2.50",
+]
+
+[project.scripts]
+canopytrace = "canopytrace.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/canopytrace"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "skills"]
+addopts = "-v"

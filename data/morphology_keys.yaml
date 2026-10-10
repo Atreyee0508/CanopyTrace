@@ -1,0 +1,146 @@
+morphology_keys:
+  # -------------------------------------------------------------
+  # IVORY & PROBOSCIDEAN DENTINE KEYS (Schreger Pattern Analysis)
+  # -------------------------------------------------------------
+  - domain: "ivory"
+    key_id: "KEY-IVO-ELEPHANT"
+    target_taxa: ["Loxodonta africana", "Elephas maximus"]
+    diagnostic_rules:
+      - feature: "schreger_angle_outer"
+        operator: "gt"
+        threshold: 115.0
+        unit: "degrees"
+        description: "Outer Schreger lines intersect at obtuse angles greater than 115 degrees (typically 120-140 deg)."
+      - feature: "haversian_canals_present"
+        operator: "eq"
+        threshold: false
+        description: "Absence of Haversian osteon canal systems confirms true dentine, not mammalian bone."
+      - feature: "molding_seams_present"
+        operator: "eq"
+        threshold: false
+        description: "Absence of injection seam lines rules out synthetic polymer casts."
+    diagnostic_confidence: 0.96
+    recommended_lab_test: "radiocarbon_dating_c14"
+
+  - domain: "ivory"
+    key_id: "KEY-IVO-MAMMOTH"
+    target_taxa: ["Mammuthus primigenius"]
+    diagnostic_rules:
+      - feature: "schreger_angle_outer"
+        operator: "lt"
+        threshold: 90.0
+        unit: "degrees"
+        description: "Outer Schreger lines intersect at acute angles less than 90 degrees (typically 70-85 deg)."
+      - feature: "haversian_canals_present"
+        operator: "eq"
+        threshold: false
+        description: "True dentine lacking osteon structures."
+    diagnostic_confidence: 0.94
+    recommended_lab_test: "radiocarbon_dating_c14"
+
+  - domain: "bone"
+    key_id: "KEY-BON-BOVINE"
+    target_taxa: ["Bos taurus"]
+    diagnostic_rules:
+      - feature: "haversian_canals_present"
+        operator: "eq"
+        threshold: true
+        description: "Microscopic osteons with Haversian vascular canals and concentric lamellae confirm bone tissue."
+      - feature: "schreger_pattern_present"
+        operator: "eq"
+        threshold: false
+        description: "Total absence of Schreger lines rules out proboscidean ivory."
+    diagnostic_confidence: 0.98
+    recommended_lab_test: "stereomicroscopy_20x"
+
+  # -------------------------------------------------------------
+  # PANGOLIN SCALES VS BOVINE KERATIN KEYS
+  # -------------------------------------------------------------
+  - domain: "keratin_scales"
+    key_id: "KEY-PAN-TRICUSPIS"
+    target_taxa: ["Manis tricuspis"]
+    diagnostic_rules:
+      - feature: "dorsal_keel_count"
+        operator: "eq"
+        threshold: 3
+        description: "Presence of 3 distinct longitudinal dorsal keels/ridges on each scale."
+      - feature: "imbrication_pattern"
+        operator: "eq"
+        threshold: "overlapping_shingle"
+        description: "Scales arranged in distinct imbricated armor pattern, not fibrous horn sheet."
+    diagnostic_confidence: 0.95
+    recommended_lab_test: "dna_barcoding_cytochrome_b"
+
+  - domain: "keratin_scales"
+    key_id: "KEY-PAN-MANIS_GENUS"
+    target_taxa: ["Manis crassicaudata", "Manis pentadactyla", "Smutsia temminckii"]
+    diagnostic_rules:
+      - feature: "dorsal_keel_count"
+        operator: "between"
+        threshold: [1, 3]
+        description: "Scale exhibits 1 to 3 dorsal keels characteristic of Pholidota."
+      - feature: "keratin_fibrous_sheath"
+        operator: "eq"
+        threshold: false
+        description: "Non-sheathed dermal scale plates, ruling out hollow bovine horn or hoof core."
+    diagnostic_confidence: 0.92
+    recommended_lab_test: "dna_barcoding_cytochrome_b"
+
+  # -------------------------------------------------------------
+  # TIMBER ANATOMY & POROSITY KEYS (Dalbergia vs Teak)
+  # -------------------------------------------------------------
+  - domain: "timber"
+    key_id: "KEY-TIM-DALBERGIA"
+    target_taxa: ["Dalbergia nigra", "Dalbergia cochinchinensis", "Dalbergia latifolia", "Dalbergia odorifera"]
+    diagnostic_rules:
+      - feature: "vessel_porosity"
+        operator: "eq"
+        threshold: "diffuse_porous"
+        description: "Diffuse-porous vessel distribution with vessels dispersed uniformly across growth rings."
+      - feature: "storied_rays_ripple_marks"
+        operator: "eq"
+        threshold: true
+        description: "Storied rays producing visible tangential ripple marks (tiered ray arrangement)."
+      - feature: "uv_water_fluorescence"
+        operator: "in"
+        threshold: ["negative", "blue_green"]
+        description: "Water/ethanol extract shows characteristic CITES Dalbergia fluorescence signature."
+    diagnostic_confidence: 0.91
+    recommended_lab_test: "wood_anatomy_thin_section"
+
+  - domain: "timber"
+    key_id: "KEY-TIM-TECTONA"
+    target_taxa: ["Tectona grandis"]
+    diagnostic_rules:
+      - feature: "vessel_porosity"
+        operator: "eq"
+        threshold: "ring_porous"
+        description: "Ring-porous or semi-ring-porous vessel arrangement with large earlywood pore zone."
+      - feature: "storied_rays_ripple_marks"
+        operator: "eq"
+        threshold: false
+        description: "Absence of storied ray ripple marks on tangential surface."
+    diagnostic_confidence: 0.93
+    recommended_lab_test: "wood_anatomy_thin_section"
+
+  # -------------------------------------------------------------
+  # MARINE REPTILE BEKKO (Hawksbill Turtle Shell) KEYS
+  # -------------------------------------------------------------
+  - domain: "marine_reptile"
+    key_id: "KEY-BEKKO-HAWKSBILL"
+    target_taxa: ["Eretmochelys imbricata"]
+    diagnostic_rules:
+      - feature: "scute_layering"
+        operator: "eq"
+        threshold: "imbricate_keratin"
+        description: "True organic keratin plate with overlapping dorsal scute lamellae."
+      - feature: "internal_gas_bubbles"
+        operator: "eq"
+        threshold: false
+        description: "Absence of spherical micro-gas bubbles rules out poured epoxy or acrylic imitation."
+      - feature: "molding_seams_present"
+        operator: "eq"
+        threshold: false
+        description: "Absence of tooling/mold seams rules out synthetic polymer casts."
+    diagnostic_confidence: 0.94
+    recommended_lab_test: "ftir_spectroscopy"

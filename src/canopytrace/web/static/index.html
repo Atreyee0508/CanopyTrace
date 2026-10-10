@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CanopyTrace — AI Forensic Wildlife & Timber Triage</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .gradient-header { background: linear-gradient(135deg, #0f172a 0%, #064e3b 100%); }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="gradient-header text-white px-6 py-4 shadow-md flex flex-wrap justify-between items-center">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center text-white text-xl font-bold shadow">
+        🌿
+      </div>
+      <div>
+        <h1 class="text-xl font-black tracking-wide">CANOPYTRACE</h1>
+        <p class="text-xs text-emerald-200">AI Forensic Fingerprinting for Illegal Wildlife & Timber Verification</p>
+      </div>
+    </div>
+    <div class="flex items-center space-x-4 mt-2 sm:mt-0 text-xs">
+      <span class="bg-emerald-950 text-emerald-300 px-3 py-1 rounded-full border border-emerald-700 flex items-center gap-1">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Offline Registry Engine Active
+      </span>
+      <span class="bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700">
+        Gemma 2 CFG Harness
+      </span>
+    </div>
+  </header>
+
+  <!-- Legal Disclaimer Banner -->
+  <div class="bg-amber-50 border-b border-amber-200 px-6 py-2 text-xs text-amber-900 flex items-center justify-between">
+    <div class="flex items-center space-x-2">
+      <i class="fa-solid fa-triangle-exclamation text-amber-600"></i>
+      <span><strong>INVESTIGATIVE TRIAGE NOTICE:</strong> AI findings do not constitute courtroom-certified testimony. Confirmatory laboratory testing (FTIR, radiocarbon, DNA barcoding) is mandatory for formal seizure.</span>
+    </div>
+    <span class="hidden md:inline font-mono text-[10px] text-amber-700">ISO/CITES Compliant</span>
+  </div>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- Left Column: Form & Tools (7 cols) -->
+    <div class="lg:col-span-7 space-y-6">
+
+      <!-- Scenario Selector Card -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+          <i class="fa-solid fa-bolt text-amber-500 mr-1"></i> Quick Load Realistic Smuggling Benchmark Scenarios
+        </label>
+        <select id="scenarioSelector" class="w-full text-sm bg-slate-50 border border-slate-300 rounded-lg p-2.5 font-medium text-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          <option value="scenario_ivory">🐘 Benchmark 1: Elephant Ivory Camouflage (Declared as Antique Mammoth)</option>
+          <option value="scenario_pangolin">🦔 Benchmark 2: Pangolin Scales Concealment (Declared as Bovine Horn/Keratin)</option>
+          <option value="scenario_rosewood">🪵 Benchmark 3: CITES Rosewood Concealment (Declared as Plantation Teak)</option>
+          <option value="scenario_turtle">🐢 Benchmark 4: Hawksbill Bekko Shell (Declared as Synthetic Resin)</option>
+          <option value="scenario_bone">🐄 Benchmark 5: Legitimate Bovine Bone Carvings (Negative Control Baseline)</option>
+          <option value="scenario_novel">🔬 Benchmark 6: Unresolved Novel Anomaly (Scientific Escalation)</option>
+        </select>
+      </div>
+
+      <!-- Manifest & Physical Inspection Form -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-5">
+        <div class="border-b border-slate-100 pb-3 flex justify-between items-center">
+          <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-file-invoice text-emerald-600"></i> Shipping Manifest Declaration
+          </h2>
+          <span class="text-xs text-slate-400 font-mono" id="displayCaseId">CASE-2026-BM01</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Declared Commercial Description</label>
+            <input type="text" id="manifest_item" class="w-full text-sm p-2 border border-slate-300 rounded-md bg-slate-50" value="Antique Mammoth Carvings">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Declared Scientific Name (Optional)</label>
+            <input type="text" id="manifest_scientific" class="w-full text-sm p-2 border border-slate-300 rounded-md bg-slate-50" value="Mammuthus primigenius">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Country of Origin (ISO-2)</label>
+            <input type="text" id="manifest_origin" class="w-full text-sm p-2 border border-slate-300 rounded-md bg-slate-50" value="NG">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Declared Quantity / Unit</label>
+            <input type="text" id="manifest_quantity" class="w-full text-sm p-2 border border-slate-300 rounded-md bg-slate-50" value="450 kg (Carved ornaments)">
+          </div>
+        </div>
+
+        <!-- Physical Inspection Section -->
+        <div class="border-t border-slate-100 pt-4 space-y-4">
+          <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-microscope text-indigo-600"></i> Physical Inspection & Micro-Structure
+          </h2>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Observed Specimen Category</label>
+              <select id="insp_category" class="w-full text-sm p-2 border border-slate-300 rounded-md bg-slate-50">
+                <option value="ivory">Ivory / Proboscidean Dentine</option>
+                <option value="keratin_scales">Keratin Scales (Pangolin / Reptile)</option>
+                <option value="timber">Timber / Wood Cross-Section</option>
+                <option value="marine_reptile">Marine Turtle Shell (Bekko)</option>
+                <option value="bone">Mammalian Bone</option>
+                <option value="unknown">Unidentified / Novel Morphology</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Checkpoint / Port Location</label>
+              <input type="text" id="insp_location" class="w-full text-sm p-2 border border-slate-300 rounded-md bg-slate-50" value="Port of Mombasa, Berth 4">
+            </div>
+          </div>
+
+          <!-- Dynamic Caliper Tool Card for Ivory -->
+          <div id="schregerToolContainer" class="p-4 bg-slate-50 border border-slate-200 rounded-lg space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <i class="fa-solid fa-compass-drafting text-emerald-600"></i> Interactive Schreger Caliper / Protractor
+              </span>
+              <span id="schregerBadge" class="text-xs font-bold px-2 py-0.5 rounded bg-red-100 text-red-700">
+                Elephant (>115°)
+              </span>
+            </div>
+            <div class="flex items-center space-x-4">
+              <input type="range" id="schregerSlider" min="50" max="150" value="124" class="w-full h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer accent-emerald-600">
+              <span id="schregerVal" class="text-sm font-mono font-bold w-12 text-right">124°</span>
+            </div>
+            <p class="text-[11px] text-slate-500">
+              Drag slider to set measured outer intersection angle. Elephant: >115° (typically 120-140°). Mammoth: <90° (typically 70-85°).
+            </p>
+          </div>
+
+          <div id="measurementsSummary" class="text-xs text-slate-500 bg-slate-50 p-3 rounded border border-slate-200 font-mono">
+            Measurements: [schreger_angle_outer=124, haversian_canals_present=false, molding_seams_present=false]
+          </div>
+
+          <button id="btnRunTriage" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg shadow transition flex items-center justify-center space-x-2">
+            <i class="fa-solid fa-fingerprint"></i>
+            <span>Run Forensic Triage & Generate Evidentiary Dossier</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Results & Dossier Package (5 cols) -->
+    <div class="lg:col-span-5 space-y-6">
+
+      <!-- Triage Result Card -->
+      <div id="resultCard" class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+        <div class="flex justify-between items-start">
+          <div>
+            <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">Triage Result</span>
+            <h3 id="verdictTaxon" class="text-lg font-black text-slate-900 mt-0.5">Elephant Ivory (Loxodonta / Elephas)</h3>
+            <span id="citesBadge" class="inline-block mt-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-red-100 text-red-800 border border-red-200">
+              CITES Appendix I (Commercial Trade Banned)
+            </span>
+          </div>
+          <div id="scoreBox" class="text-right">
+            <span class="text-2xl font-black text-red-600" id="scoreVal">0.92</span>
+            <span class="block text-[10px] text-slate-400 uppercase font-bold">Discrepancy</span>
+          </div>
+        </div>
+
+        <!-- Alert Notification Spool -->
+        <div id="alertBox" class="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-800 flex items-start gap-2">
+          <i class="fa-solid fa-bell text-red-600 mt-0.5"></i>
+          <div>
+            <strong>🚨 Automated Local Authority Alert Dispatched</strong>
+            <p class="text-[11px] text-red-700 mt-0.5">Discrepancy score &ge; 0.70 threshold. Emergency incident notification queued for customs seizure.</p>
+          </div>
+        </div>
+
+        <!-- Flagged Contradictions -->
+        <div class="space-y-2">
+          <span class="text-xs font-bold text-slate-700 uppercase tracking-wider block">Empirical Contradictions</span>
+          <ul id="flaggedList" class="space-y-1.5 text-xs text-slate-700">
+            <li class="flex items-start gap-2 bg-slate-50 p-2 rounded border border-slate-100">
+              <i class="fa-solid fa-circle-xmark text-red-500 mt-0.5"></i>
+              <span>Outer Schreger angle of 124° (>115°) indicates modern elephant ivory, contradicting declared mammoth.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Smuggling Modus Operandi -->
+        <div class="space-y-1.5">
+          <span class="text-xs font-bold text-slate-700 uppercase tracking-wider block">Matched Smuggling Modus Operandi</span>
+          <div id="moList" class="flex flex-wrap gap-1.5">
+            <span class="text-[11px] bg-slate-100 text-slate-800 px-2.5 py-1 rounded border border-slate-200 font-medium">
+              🕵️ MO-IVO-001: Antique Mammoth Ivory Camouflage
+            </span>
+          </div>
+        </div>
+
+        <!-- Lab Testing Protocol -->
+        <div class="space-y-2">
+          <span class="text-xs font-bold text-slate-700 uppercase tracking-wider block">Mandatory Lab Actions</span>
+          <div id="labList" class="space-y-1.5 text-xs">
+            <div class="bg-indigo-50 border border-indigo-100 p-2 rounded text-indigo-950 flex justify-between items-center">
+              <div>
+                <strong>Radiocarbon Dating (C14)</strong>
+                <p class="text-[10px] text-indigo-700">Bomb-pulse baseline to prove pre-1947 vs modern</p>
+              </div>
+              <span class="text-[10px] font-bold bg-indigo-200 px-2 py-0.5 rounded text-indigo-800">MANDATORY</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rationale -->
+        <div class="space-y-1 bg-slate-50 p-3 rounded-lg border border-slate-200">
+          <span class="text-[11px] font-bold text-slate-600 block">AI Investigative Rationale (Gemma 2)</span>
+          <p id="rationaleText" class="text-xs text-slate-700 italic">
+            Physical inspection exhibits outer Schreger angles exceeding 115 degrees, characteristic of protected elephant dentine, contradicting declared mammoth carvings.
+          </p>
+        </div>
+
+        <!-- Dossier Package Export Actions -->
+        <div class="pt-2 border-t border-slate-200 space-y-2">
+          <span class="text-xs font-bold text-slate-700 uppercase tracking-wider block">Evidentiary Dossier Package</span>
+          <div class="grid grid-cols-3 gap-2">
+            <a id="btnPdf" href="/api/dossier/CASE-2026-BM01/pdf" target="_blank" class="text-center py-2 px-1 text-xs font-bold bg-slate-800 hover:bg-slate-900 text-white rounded shadow transition flex flex-col items-center">
+              <i class="fa-solid fa-file-pdf text-red-400 mb-1"></i> PDF Dossier
+            </a>
+            <a id="btnMd" href="/api/dossier/CASE-2026-BM01/markdown" target="_blank" class="text-center py-2 px-1 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 rounded border border-slate-300 transition flex flex-col items-center">
+              <i class="fa-brands fa-markdown text-blue-500 mb-1"></i> Markdown
+            </a>
+            <a id="btnJson" href="/api/dossier/CASE-2026-BM01/json" target="_blank" class="text-center py-2 px-1 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 rounded border border-slate-300 transition flex flex-col items-center">
+              <i class="fa-solid fa-code text-emerald-500 mb-1"></i> JSON + Hash
+            </a>
+          </div>
+          <div class="text-[10px] font-mono text-slate-400 truncate mt-1">
+            SHA-256: <span id="shaText">a3f9e2b17c8d9...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Higher Authority Escalation Review Card -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-3">
+        <div class="flex justify-between items-center">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+            <i class="fa-solid fa-user-shield text-indigo-600"></i> Higher Authority Approval Portal
+          </h3>
+          <span class="text-[10px] font-bold bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">Learning Loop</span>
+        </div>
+        <p class="text-xs text-slate-500">
+          Unidentified specimens flagged as novel anomalies are routed to scientific authorities. Once approved, the taxon is automatically ingested into the offline reference database.
+        </p>
+        <div class="space-y-2 text-xs">
+          <input type="text" id="escCaseId" placeholder="Case ID (e.g. CASE-2026-BM06)" class="w-full p-2 border border-slate-300 rounded bg-slate-50 font-mono">
+          <div class="grid grid-cols-2 gap-2">
+            <input type="text" id="escSpecies" placeholder="Verified Species" class="p-2 border border-slate-300 rounded bg-slate-50">
+            <select id="escAppendix" class="p-2 border border-slate-300 rounded bg-slate-50">
+              <option value="I">CITES Appendix I</option>
+              <option value="II">CITES Appendix II</option>
+              <option value="III">CITES Appendix III</option>
+              <option value="None">Not Listed</option>
+            </select>
+          </div>
+          <button id="btnApproveEsc" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 rounded transition">
+            Approve & Ingest into Reference Database
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 text-slate-400 py-4 px-6 text-center text-xs mt-auto border-t border-slate-800">
+    <p>CanopyTrace v0.1.0 — Open-Source AI Forensic Decision Support Platform | Licensed under MIT / Apache 2.0</p>
+  </footer>
+
+  <!-- Client-Side Script -->
+  <script>
+    const scenarios = {
+      scenario_ivory: {
+        case_id: "CASE-2026-BM01",
+        item: "Antique Mammoth Carvings",
+        scientific: "Mammuthus primigenius",
+        origin: "NG",
+        quantity: "450 kg",
+        category: "ivory",
+        measurements: [
+          { feature_name: "schreger_angle_outer", value: 124, unit: "degrees" },
+          { feature_name: "haversian_canals_present", value: false },
+          { feature_name: "molding_seams_present", value: false }
+        ]
+      },
+      scenario_pangolin: {
+        case_id: "CASE-2026-BM02",
+        item: "Dried Bovine Horn / Keratin Flakes",
+        scientific: "Bos taurus",
+        origin: "NG",
+        quantity: "2000 kg",
+        category: "keratin_scales",
+        measurements: [
+          { feature_name: "dorsal_keel_count", value: 3 },
+          { feature_name: "imbrication_pattern", value: "overlapping_shingle" }
+        ]
+      },
+      scenario_rosewood: {
+        case_id: "CASE-2026-BM03",
+        item: "Plantation Teak Logs",
+        scientific: "Tectona grandis",
+        origin: "LA",
+        quantity: "40 m3",
+        category: "timber",
+        measurements: [
+          { feature_name: "vessel_porosity", value: "diffuse_porous" },
+          { feature_name: "storied_rays_ripple_marks", value: true },
+          { feature_name: "uv_water_fluorescence", value: "negative" }
+        ]
+      },
+      scenario_turtle: {
+        case_id: "CASE-2026-BM04",
+        item: "Decorative Synthetic Celluloid Resin",
+        scientific: "",
+        origin: "ID",
+        quantity: "120 pieces",
+        category: "marine_reptile",
+        measurements: [
+          { feature_name: "scute_layering", value: "imbricate_keratin" },
+          { feature_name: "internal_gas_bubbles", value: false },
+          { feature_name: "molding_seams_present", value: false }
+        ]
+      },
+      scenario_bone: {
+        case_id: "CASE-2026-BM05",
+        item: "Handcrafted Bovine Bone Carvings",
+        scientific: "Bos taurus",
+        origin: "IN",
+        quantity: "50 kg",
+        category: "bone",
+        measurements: [
+          { feature_name: "haversian_canals_present", value: true },
+          { feature_name: "schreger_pattern_present", value: false }
+        ]
+      },
+      scenario_novel: {
+        case_id: "CASE-2026-BM06",
+        item: "Unidentified Exotic Specimen Fragments",
+        scientific: "",
+        origin: "BR",
+        quantity: "15 kg",
+        category: "unknown",
+        measurements: [
+          { feature_name: "unknown_lattice_metric", value: 99.4 }
+        ]
+      }
+    };
+
+    let activeMeasurements = scenarios.scenario_ivory.measurements;
+
+    function loadScenario(key) {
+      const s = scenarios[key];
+      document.getElementById("displayCaseId").innerText = s.case_id;
+      document.getElementById("manifest_item").value = s.item;
+      document.getElementById("manifest_scientific").value = s.scientific;
+      document.getElementById("manifest_origin").value = s.origin;
+      document.getElementById("manifest_quantity").value = s.quantity;
+      document.getElementById("insp_category").value = s.category;
+      activeMeasurements = s.measurements;
+
+      // Handle Schreger Tool visibility
+      const container = document.getElementById("schregerToolContainer");
+      if (s.category === "ivory") {
+        container.style.display = "block";
+      } else {
+        container.style.display = "none";
+      }
+
+      document.getElementById("measurementsSummary").innerText =
+        "Measurements: " + JSON.stringify(activeMeasurements);
+    }
+
+    document.getElementById("scenarioSelector").addEventListener("change", (e) => {
+      loadScenario(e.target.value);
+    });
+
+    const slider = document.getElementById("schregerSlider");
+    const valText = document.getElementById("schregerVal");
+    const badge = document.getElementById("schregerBadge");
+
+    slider.addEventListener("input", (e) => {
+      const val = parseInt(e.target.value);
+      valText.innerText = val + "°";
+      if (val > 115) {
+        badge.innerText = "Elephant (>115°)";
+        badge.className = "text-xs font-bold px-2 py-0.5 rounded bg-red-100 text-red-700";
+      } else if (val < 90) {
+        badge.innerText = "Mammoth (<90°)";
+        badge.className = "text-xs font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-700";
+      } else {
+        badge.innerText = "Intermediate (90-115°)";
+        badge.className = "text-xs font-bold px-2 py-0.5 rounded bg-slate-200 text-slate-700";
+      }
+
+      // Update active measurements
+      const m = activeMeasurements.find(x => x.feature_name === "schreger_angle_outer");
+      if (m) m.value = val;
+      document.getElementById("measurementsSummary").innerText =
+        "Measurements: " + JSON.stringify(activeMeasurements);
+    });
+
+    // Run Triage
+    document.getElementById("btnRunTriage").addEventListener("click", async () => {
+      const caseId = document.getElementById("displayCaseId").innerText;
+      const payload = {
+        case_id: caseId,
+        manifest: {
+          manifest_id: caseId.replace("CASE-", "MAN-"),
+          waybill_number: "WB-" + Math.floor(100000 + Math.random() * 900000),
+          shipper: "Global Logistics Freight Co.",
+          consignee: "Artisan Import Trading Ltd.",
+          declared_item_name: document.getElementById("manifest_item").value,
+          declared_scientific_name: document.getElementById("manifest_scientific").value || null,
+          declared_quantity: 100.0,
+          declared_unit: "kg",
+          country_of_origin: document.getElementById("manifest_origin").value,
+          destination_country: "CN"
+        },
+        inspection: {
+          inspection_id: "INSP-" + caseId,
+          inspector_id: "CUSTOMS-OFFICER-44",
+          checkpoint_location: document.getElementById("insp_location").value,
+          observed_specimen_category: document.getElementById("insp_category").value,
+          measurements: activeMeasurements
+        }
+      };
+
+      try {
+        const btn = document.getElementById("btnRunTriage");
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Analyzing Manifest & Morphology...</span>`;
+
+        const resp = await fetch("/api/inspect", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await resp.json();
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-fingerprint"></i><span>Run Forensic Triage & Generate Evidentiary Dossier</span>`;
+
+        // Update UI
+        document.getElementById("verdictTaxon").innerText = data.suspected_species;
+        document.getElementById("scoreVal").innerText = data.discrepancy_score.toFixed(2);
+
+        const appBadge = document.getElementById("citesBadge");
+        if (data.cites_appendix === "I") {
+          appBadge.innerText = "CITES Appendix I (Commercial Trade Banned)";
+          appBadge.className = "inline-block mt-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-red-100 text-red-800 border border-red-200";
+        } else if (data.cites_appendix === "II") {
+          appBadge.innerText = "CITES Appendix II (Permit Required)";
+          appBadge.className = "inline-block mt-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200";
+        } else {
+          appBadge.innerText = "Non-CITES Regulated Specimen";
+          appBadge.className = "inline-block mt-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200";
+        }
+
+        // Alert Box
+        document.getElementById("alertBox").style.display = data.alert_dispatched ? "flex" : "none";
+
+        // Contradictions
+        const fList = document.getElementById("flaggedList");
+        fList.innerHTML = "";
+        if (data.flagged_indicators && data.flagged_indicators.length > 0) {
+          data.flagged_indicators.forEach(f => {
+            const li = document.createElement("li");
+            li.className = "flex items-start gap-2 bg-slate-50 p-2 rounded border border-slate-100";
+            li.innerHTML = `<i class="fa-solid fa-circle-xmark text-red-500 mt-0.5"></i><span>${f}</span>`;
+            fList.appendChild(li);
+          });
+        } else {
+          fList.innerHTML = `<li class="text-emerald-700 bg-emerald-50 p-2 rounded border border-emerald-100 flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-600"></i> No empirical contradictions found.</li>`;
+        }
+
+        // MO list
+        const moContainer = document.getElementById("moList");
+        moContainer.innerHTML = "";
+        if (data.smuggling_mos && data.smuggling_mos.length > 0) {
+          data.smuggling_mos.forEach(m => {
+            const s = document.createElement("span");
+            s.className = "text-[11px] bg-slate-100 text-slate-800 px-2.5 py-1 rounded border border-slate-200 font-medium";
+            s.innerText = "🕵️ " + m;
+            moContainer.appendChild(s);
+          });
+        } else {
+          moContainer.innerHTML = `<span class="text-[11px] text-slate-400">None detected</span>`;
+        }
+
+        // Lab actions
+        const labBox = document.getElementById("labList");
+        labBox.innerHTML = "";
+        if (data.forensic_output.suggested_lab_action && data.forensic_output.suggested_lab_action.length > 0) {
+          data.forensic_output.suggested_lab_action.forEach(l => {
+            const div = document.createElement("div");
+            div.className = "bg-indigo-50 border border-indigo-100 p-2 rounded text-indigo-950 flex justify-between items-center";
+            div.innerHTML = `<div><strong>${l.test_type}</strong><p class="text-[10px] text-indigo-700">${l.expected_discriminator}</p></div><span class="text-[10px] font-bold bg-indigo-200 px-2 py-0.5 rounded text-indigo-800">${l.priority.toUpperCase()}</span>`;
+            labBox.appendChild(div);
+          });
+        }
+
+        document.getElementById("rationaleText").innerText = data.forensic_output.forensic_rationale;
+
+        // Update Dossier links
+        document.getElementById("btnPdf").href = `/api/dossier/${caseId}/pdf`;
+        document.getElementById("btnMd").href = `/api/dossier/${caseId}/markdown`;
+        document.getElementById("btnJson").href = `/api/dossier/${caseId}/json`;
+        document.getElementById("shaText").innerText = data.dossier_package.sha256_hash;
+
+      } catch (err) {
+        alert("Error during triage: " + err);
+        console.error(err);
+      }
+    });
+
+    // Escalation Approval
+    document.getElementById("btnApproveEsc").addEventListener("click", async () => {
+      const caseId = document.getElementById("escCaseId").value;
+      const species = document.getElementById("escSpecies").value;
+      const appendix = document.getElementById("escAppendix").value;
+
+      if (!caseId || !species) {
+        alert("Please provide Case ID and verified Species.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("case_id", caseId);
+      formData.append("species", species);
+      formData.append("appendix", appendix);
+      formData.append("notes", "Verified by Scientific Authority via Web Portal");
+
+      const resp = await fetch("/api/escalate/approve", {
+        method: "POST",
+        body: formData
+      });
+      const data = await resp.json();
+      if (data.success) {
+        alert(`Success! Specimen '${species}' verified and ingested into SQLite reference database.`);
+      } else {
+        alert("Approval failed.");
+      }
+    });
+
+    // Initial load
+    loadScenario("scenario_ivory");
+  </script>
+</body>
+</html>

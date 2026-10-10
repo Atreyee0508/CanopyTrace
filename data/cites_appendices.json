@@ -1,0 +1,167 @@
+[
+  {
+    "scientific_name": "Loxodonta africana",
+    "common_names": ["African Elephant", "African Savanna Elephant", "African Forest Elephant"],
+    "class": "Mammalia",
+    "order": "Proboscidea",
+    "family": "Elephantidae",
+    "appendix": "I",
+    "commercial_status": "BANNED",
+    "annotations": "Commercial trade in raw and worked ivory is strictly prohibited globally under CITES Appendix I.",
+    "listing_year": 1989
+  },
+  {
+    "scientific_name": "Elephas maximus",
+    "common_names": ["Asian Elephant", "Indian Elephant", "Sumatran Elephant"],
+    "class": "Mammalia",
+    "order": "Proboscidea",
+    "family": "Elephantidae",
+    "appendix": "I",
+    "commercial_status": "BANNED",
+    "annotations": "Commercial trade in ivory and derivatives is strictly prohibited globally under CITES Appendix I.",
+    "listing_year": 1975
+  },
+  {
+    "scientific_name": "Mammuthus primigenius",
+    "common_names": ["Woolly Mammoth", "Mammoth"],
+    "class": "Mammalia",
+    "order": "Proboscidea",
+    "family": "Elephantidae",
+    "appendix": "None",
+    "commercial_status": "REGULATED_UNLISTED",
+    "annotations": "Extinct prehistoric species. Not listed under CITES, but frequently used as fraudulent camouflage for modern elephant ivory.",
+    "listing_year": null
+  },
+  {
+    "scientific_name": "Manis tricuspis",
+    "common_names": ["White-bellied Pangolin", "Tree Pangolin", "Three-cusped Pangolin"],
+    "class": "Mammalia",
+    "order": "Pholidota",
+    "family": "Manidae",
+    "appendix": "I",
+    "commercial_status": "BANNED",
+    "annotations": "Zero annual export quota for wild specimens traded for commercial purposes. All commercial trade banned.",
+    "listing_year": 2017
+  },
+  {
+    "scientific_name": "Manis crassicaudata",
+    "common_names": ["Indian Pangolin", "Thick-tailed Pangolin"],
+    "class": "Mammalia",
+    "order": "Pholidota",
+    "family": "Manidae",
+    "appendix": "I",
+    "commercial_status": "BANNED",
+    "annotations": "Appendix I. Total commercial trade ban for scales, meat, and live specimens.",
+    "listing_year": 2017
+  },
+  {
+    "scientific_name": "Manis pentadactyla",
+    "common_names": ["Chinese Pangolin"],
+    "class": "Mammalia",
+    "order": "Pholidota",
+    "family": "Manidae",
+    "appendix": "I",
+    "commercial_status": "BANNED",
+    "annotations": "Appendix I. Critically endangered; total commercial trade ban.",
+    "listing_year": 2017
+  },
+  {
+    "scientific_name": "Smutsia temminckii",
+    "common_names": ["Ground Pangolin", "Temminck's Ground Pangolin"],
+    "class": "Mammalia",
+    "order": "Pholidota",
+    "family": "Manidae",
+    "appendix": "I",
+    "commercial_status": "BANNED",
+    "annotations": "Appendix I. Commercial trade ban.",
+    "listing_year": 2017
+  },
+  {
+    "scientific_name": "Dalbergia nigra",
+    "common_names": ["Brazilian Rosewood", "Rio Rosewood", "Jacaranda"],
+    "class": "Magnoliopsida",
+    "order": "Fabales",
+    "family": "Fabaceae",
+    "appendix": "I",
+    "commercial_status": "BANNED",
+    "annotations": "Appendix I. All logs, sawn wood, veneer sheets, plywood, and worked articles prohibited without scientific exemption.",
+    "listing_year": 1992
+  },
+  {
+    "scientific_name": "Dalbergia cochinchinensis",
+    "common_names": ["Thailand Rosewood", "Siam Rosewood", "Tracwood"],
+    "class": "Magnoliopsida",
+    "order": "Fabales",
+    "family": "Fabaceae",
+    "appendix": "II",
+    "commercial_status": "BANNED",
+    "annotations": "Appendix II with Annotation #4. Commercial trade suspended by CITES Standing Committee.",
+    "listing_year": 2013
+  },
+  {
+    "scientific_name": "Dalbergia latifolia",
+    "common_names": ["East Indian Rosewood", "Bombay Blackwood", "Malabar Rosewood"],
+    "class": "Magnoliopsida",
+    "order": "Fabales",
+    "family": "Fabaceae",
+    "appendix": "II",
+    "commercial_status": "QUOTA_CONTROLLED",
+    "annotations": "Appendix II with Annotation #15. Requires valid CITES export permit issued by national management authority.",
+    "listing_year": 2017
+  },
+  {
+    "scientific_name": "Dalbergia odorifera",
+    "common_names": ["Fragrant Rosewood", "Huanghuali"],
+    "class": "Magnoliopsida",
+    "order": "Fabales",
+    "family": "Fabaceae",
+    "appendix": "II",
+    "commercial_status": "QUOTA_CONTROLLED",
+    "annotations": "Appendix II. Requires valid CITES export permit.",
+    "listing_year": 2019
+  },
+  {
+    "scientific_name": "Tectona grandis",
+    "common_names": ["Teak", "Plantation Teak", "Burmese Teak"],
+    "class": "Magnoliopsida",
+    "order": "Lamiales",
+    "family": "Lamiaceae",
+    "appendix": "None",
+    "commercial_status": "UNREGULATED",
+    "annotations": "Commercial timber species not listed on CITES appendices. Frequently used as false declaration for Dalbergia.",
+    "listing_year": null
+  },
+  {
+    "scientific_name": "Eretmochelys imbricata",
+    "common_names": ["Hawksbill Sea Turtle", "Hawksbill", "Bekko Turtle"],
+    "class": "Reptilia",
+    "order": "Testudines",
+    "family": "Cheloniidae",
+    "appendix": "I",
+    "commercial_status": "BANNED",
+    "annotations": "Appendix I. Total commercial trade ban on tortoiseshell/bekko scutes, eggs, and taxidermy.",
+    "listing_year": 1977
+  },
+  {
+    "scientific_name": "Panthera tigris",
+    "common_names": ["Tiger", "Bengal Tiger", "Siberian Tiger"],
+    "class": "Mammalia",
+    "order": "Carnivora",
+    "family": "Felidae",
+    "appendix": "I",
+    "commercial_status": "BANNED",
+    "annotations": "Appendix I. Total commercial trade ban on bones, skins, claws, and canines.",
+    "listing_year": 1975
+  },
+  {
+    "scientific_name": "Bos taurus",
+    "common_names": ["Domestic Cattle", "Cow Bone", "Bovine Horn", "Cow"],
+    "class": "Mammalia",
+    "order": "Artiodactyla",
+    "family": "Bovidae",
+    "appendix": "None",
+    "commercial_status": "UNREGULATED",
+    "annotations": "Domestic livestock. Not subject to CITES regulation. Common negative control specimen.",
+    "listing_year": null
+  }
+]

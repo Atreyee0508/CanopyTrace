@@ -1,0 +1,54 @@
+{
+  "Loxodonta africana": [
+    "AO", "BJ", "BW", "BF", "CM", "CF", "TD", "CG", "CD", "CI",
+    "GQ", "ER", "ET", "GA", "GH", "GN", "GW", "KE", "LR", "MW",
+    "ML", "MZ", "NA", "NE", "NG", "RW", "SN", "SL", "SO", "ZA",
+    "SS", "SD", "TZ", "TG", "UG", "ZM", "ZW"
+  ],
+  "Elephas maximus": [
+    "BD", "BT", "KH", "CN", "IN", "ID", "LA", "MY", "MM", "NP",
+    "LK", "TH", "VN"
+  ],
+  "Mammuthus primigenius": [
+    "RU"
+  ],
+  "Manis tricuspis": [
+    "AO", "BJ", "CM", "CF", "CG", "CD", "CI", "GQ", "GA", "GH",
+    "GN", "LR", "NG", "RW", "SL", "SS", "TZ", "TG", "UG"
+  ],
+  "Manis crassicaudata": [
+    "BD", "IN", "NP", "PK", "LK"
+  ],
+  "Manis pentadactyla": [
+    "BT", "CN", "HK", "IN", "LA", "MM", "NP", "TH", "TW", "VN"
+  ],
+  "Smutsia temminckii": [
+    "AO", "BW", "CD", "SZ", "KE", "MW", "MZ", "NA", "ZA", "SS",
+    "TZ", "UG", "ZM", "ZW"
+  ],
+  "Dalbergia nigra": [
+    "BR"
+  ],
+  "Dalbergia cochinchinensis": [
+    "KH", "LA", "TH", "VN"
+  ],
+  "Dalbergia latifolia": [
+    "IN", "ID", "NP"
+  ],
+  "Dalbergia odorifera": [
+    "CN"
+  ],
+  "Tectona grandis": [
+    "IN", "ID", "MM", "TH", "LA", "VN", "NG", "CI", "CR", "BR"
+  ],
+  "Eretmochelys imbricata": [
+    "AU", "BR", "CU", "EG", "ID", "MG", "MX", "PH", "SC", "ZA",
+    "TH", "US", "VN", "LK", "TZ"
+  ],
+  "Panthera tigris": [
+    "BD", "BT", "CN", "IN", "ID", "MY", "MM", "NP", "RU", "TH"
+  ],
+  "Bos taurus": [
+    "ALL"
+  ]
+}
