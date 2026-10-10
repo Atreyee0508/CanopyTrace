@@ -130,12 +130,15 @@ from canopytrace.schemas import MorphologyMeasurement
 @app.post("/api/mobile/inspect")
 async def inspect_mobile_cargo(
     photo: UploadFile = File(...),
-    category: str = Form(...),
+    category: Optional[str] = Form(None),
+    specimen_category: Optional[str] = Form(None),
     declared_item: str = Form(...),
     declared_scientific: Optional[str] = Form(None),
-    origin_country: str = Form("NG"),
+    origin_country: Optional[str] = Form(None),
+    country_of_origin: Optional[str] = Form(None),
     checkpoint_location: str = Form("Mobile Port Terminal Unit"),
     caliper_angle: Optional[float] = Form(None),
+    schreger_angle: Optional[float] = Form(None),
     model: str = Form("gemma4:e2b"),
     case_id: Optional[str] = Form(None),
 ) -> Dict[str, Any]:
@@ -159,11 +162,15 @@ async def inspect_mobile_cargo(
             shutil.copyfileobj(photo.file, buffer)
 
         # 2. Build physical measurements based on category and caliper angle
+        resolved_category = (category or specimen_category or "unknown").lower().strip()
+        resolved_angle = caliper_angle if caliper_angle is not None else schreger_angle
+        resolved_origin = (origin_country or country_of_origin or "NG").strip().upper()
+
         measurements: List[MorphologyMeasurement] = []
-        cat_lower = category.lower().strip()
+        cat_lower = resolved_category
 
         if "ivory" in cat_lower:
-            angle_val = float(caliper_angle) if caliper_angle is not None else 124.0
+            angle_val = float(resolved_angle) if resolved_angle is not None else 124.0
             measurements = [
                 MorphologyMeasurement(feature_name="schreger_angle_outer", value=angle_val, unit="degrees", instrument="mobile_caliper"),
                 MorphologyMeasurement(feature_name="haversian_canals_present", value=False),
@@ -206,7 +213,7 @@ async def inspect_mobile_cargo(
             declared_scientific_name=declared_scientific,
             declared_quantity=100.0,
             declared_unit="kg",
-            country_of_origin=origin_country.strip().upper(),
+            country_of_origin=resolved_origin,
             destination_country="US",
         )
 
@@ -214,7 +221,7 @@ async def inspect_mobile_cargo(
             inspection_id=f"INSP-{cid}",
             inspector_id="FIELD-OFFICER-MOBILE",
             checkpoint_location=checkpoint_location,
-            observed_specimen_category=category,
+            observed_specimen_category=resolved_category,
             measurements=measurements,
             photos=[str(photo_path)],
         )
