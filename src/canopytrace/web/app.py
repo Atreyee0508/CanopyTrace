@@ -84,8 +84,10 @@ async def inspect_cargo(request: Request) -> Dict[str, Any]:
         manifest = ShippingManifest.model_validate(manifest_data)
         inspection = PhysicalInspection.model_validate(inspection_data)
 
+        cid = case_id or f"CASE-{manifest.manifest_id}"
+        case_dir = OUTPUT_DIR / cid
         harness = get_forensic_harness(model_name=model_name)
-        res = run_forensic_pipeline(manifest, inspection, case_id=case_id, harness=harness)
+        res = run_forensic_pipeline(manifest, inspection, case_id=cid, output_dir=case_dir, harness=harness)
         # Format for JSON return
         return {
             "case_id": res["case_id"],

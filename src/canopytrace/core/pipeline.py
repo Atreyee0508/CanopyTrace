@@ -38,7 +38,12 @@ def run_forensic_pipeline(
       Stage 4: Gemma 2 Schema-Constrained Synthesis & Multi-Format Dossier Compilation
     """
     cid = case_id or f"CASE-{manifest.manifest_id}"
-    out_dir = output_dir or (Path(__file__).resolve().parent.parent.parent.parent / "output" / cid)
+    if output_dir:
+        out_dir = output_dir
+    elif os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+        out_dir = Path("/tmp/canopytrace/output") / cid
+    else:
+        out_dir = Path(__file__).resolve().parent.parent.parent.parent / "output" / cid
 
     # Stage 1: CITES Registry Check
     registry_res = audit_manifest_registry(manifest, db_path=db_path)
