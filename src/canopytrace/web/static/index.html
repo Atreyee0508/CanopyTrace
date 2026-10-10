@@ -3,58 +3,118 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CanopyTrace — AI Forensic Wildlife & Timber Triage</title>
+  <title>CanopyTrace — AI Forensic Wildlife & Timber Triage Hub</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            forest: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#10b981',
+              600: '#059669',
+              800: '#065f46',
+              900: '#064e3b',
+              950: '#022c22',
+            }
+          }
+        }
+      }
+    }
+  </script>
   <style>
-    .gradient-header { background: linear-gradient(135deg, #0f172a 0%, #064e3b 100%); }
+    :root {
+      color-scheme: light dark;
+      --surface-bg: #0f172a;
+    }
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .glow-emerald {
+      box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.25);
+    }
+    .glow-red {
+      box-shadow: 0 0 25px -5px rgba(239, 68, 68, 0.35);
+    }
+    dialog::backdrop {
+      background: rgba(2, 6, 23, 0.75);
+      backdrop-filter: blur(4px);
+    }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-white">
 
-  <!-- Header -->
-  <header class="gradient-header text-white px-6 py-4 shadow-md flex flex-wrap justify-between items-center">
-    <div class="flex items-center space-x-3">
-      <div class="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center text-white text-xl font-bold shadow">
+  <!-- Top Glass Header -->
+  <header class="glass-panel sticky top-0 z-40 border-b border-slate-800/80 px-6 py-3.5 flex flex-wrap justify-between items-center shadow-lg">
+    <div class="flex items-center space-x-3.5">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-white text-xl font-bold shadow-md shadow-emerald-950">
         🌿
       </div>
       <div>
-        <h1 class="text-xl font-black tracking-wide">CANOPYTRACE</h1>
-        <p class="text-xs text-emerald-200">AI Forensic Fingerprinting for Illegal Wildlife & Timber Verification</p>
+        <div class="flex items-center gap-2">
+          <h1 class="text-lg font-black tracking-wider text-white">CANOPYTRACE</h1>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-700/60">v0.1.0-STABLE</span>
+        </div>
+        <p class="text-xs text-slate-400">AI Forensic Fingerprinting & Autonomous Cargo Manifest Verification</p>
       </div>
     </div>
-    <div class="flex items-center space-x-4 mt-2 sm:mt-0 text-xs">
-      <span class="bg-emerald-950 text-emerald-300 px-3 py-1 rounded-full border border-emerald-700 flex items-center gap-1">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Offline Registry Engine Active
-      </span>
-      <span class="bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700">
-        <i class="fa-solid fa-microchip text-emerald-400 mr-1"></i> Gemma 4 e2b (Ollama)
-      </span>
+
+    <!-- Live Telemetry Badges -->
+    <div class="flex items-center space-x-3 mt-2 sm:mt-0 text-xs">
+      <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="font-mono text-[11px]">OFFLINE REGISTRY ACTIVE</span>
+      </div>
+
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-950/70 border border-emerald-800/70 text-emerald-200">
+        <i class="fa-solid fa-microchip text-emerald-400"></i>
+        <span class="font-mono text-[11px]" id="topModelBadge">gemma4:e2b</span>
+      </div>
+
+      <button id="btnOpenPairModal" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium transition shadow-sm text-xs">
+        <i class="fa-solid fa-qrcode text-emerald-400"></i>
+        <span>Mobile Link</span>
+      </button>
     </div>
   </header>
 
-  <!-- Legal Disclaimer Banner -->
-  <div class="bg-amber-50 border-b border-amber-200 px-6 py-2 text-xs text-amber-900 flex items-center justify-between">
-    <div class="flex items-center space-x-2">
-      <i class="fa-solid fa-triangle-exclamation text-amber-600"></i>
-      <span><strong>INVESTIGATIVE TRIAGE NOTICE:</strong> AI findings do not constitute courtroom-certified testimony. Confirmatory laboratory testing (FTIR, radiocarbon, DNA barcoding) is mandatory for formal seizure.</span>
+  <!-- Legal Triage Notice Banner -->
+  <div class="bg-amber-950/50 border-b border-amber-900/40 px-6 py-2 text-xs text-amber-200 flex items-center justify-between">
+    <div class="flex items-center space-x-2.5">
+      <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
+      <span><strong>MANDATORY INVESTIGATIVE TRIAGE NOTICE:</strong> AI findings guide customs detention decisions and do not substitute certified courtroom testimony. Confirmatory forensic laboratory assays (FTIR, radiocarbon C14, DNA barcoding) are required for formal judicial seizure.</span>
     </div>
-    <span class="hidden md:inline font-mono text-[10px] text-amber-700">ISO/CITES Compliant</span>
+    <span class="hidden md:inline font-mono text-[10px] text-amber-400/80">CITES Art. VIII Compliant</span>
   </div>
 
   <!-- Main Container -->
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-    <!-- Left Column: Form & Tools (7 cols) -->
+    <!-- Left Column: Cargo Data, Inspection & Photographic Evidence (7 cols) -->
     <div class="lg:col-span-7 space-y-6">
 
-      <!-- Scenario Selector Card -->
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-          <i class="fa-solid fa-bolt text-amber-500 mr-1"></i> Quick Load Realistic Smuggling Benchmark Scenarios
-        </label>
-        <select id="scenarioSelector" class="w-full text-sm bg-slate-50 border border-slate-300 rounded-lg p-2.5 font-medium text-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+      <!-- Benchmark Scenario Carousel Card -->
+      <div class="glass-card p-5 rounded-2xl border border-slate-800 shadow-md">
+        <div class="flex justify-between items-center mb-3">
+          <label class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-bolt text-amber-400"></i> Realistic Smuggling Benchmarks
+          </label>
+          <span class="text-[10px] font-mono text-emerald-400">Deterministic Offline Suite</span>
+        </div>
+        <select id="scenarioSelector" class="w-full text-sm bg-slate-900/90 border border-slate-700 text-slate-200 rounded-xl p-3 font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
           <option value="scenario_ivory">🐘 Benchmark 1: Elephant Ivory Camouflage (Declared as Antique Mammoth)</option>
           <option value="scenario_pangolin">🦔 Benchmark 2: Pangolin Scales Concealment (Declared as Bovine Horn/Keratin)</option>
           <option value="scenario_rosewood">🪵 Benchmark 3: CITES Rosewood Concealment (Declared as Plantation Teak)</option>
@@ -64,44 +124,48 @@
         </select>
       </div>
 
-      <!-- Manifest & Physical Inspection Form -->
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-5">
-        <div class="border-b border-slate-100 pb-3 flex justify-between items-center">
-          <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-            <i class="fa-solid fa-file-invoice text-emerald-600"></i> Shipping Manifest Declaration
+      <!-- Shipping Declaration & Micro-Structural Examination Form -->
+      <div class="glass-card p-6 rounded-2xl border border-slate-800 shadow-md space-y-6">
+        
+        <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
+          <h2 class="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-file-invoice text-emerald-400"></i> Cargo Manifest Declaration
           </h2>
-          <span class="text-xs text-slate-400 font-mono" id="displayCaseId">CASE-2026-BM01</span>
+          <span class="text-xs text-emerald-400 font-mono bg-emerald-950/80 px-2.5 py-0.5 rounded border border-emerald-800/80" id="displayCaseId">CASE-2026-BM01</span>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Declared Commercial Description</label>
-            <input type="text" id="manifest_item" class="w-full text-sm p-2 border border-slate-300 rounded-md bg-slate-50" value="Antique Mammoth Carvings">
+            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Declared Commercial Description</label>
+            <input type="text" id="manifest_item" class="w-full text-sm p-2.5 bg-slate-900/90 border border-slate-700/80 rounded-xl text-slate-100 focus:ring-2 focus:ring-emerald-500 focus:outline-none" value="Antique Mammoth Carvings">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Declared Scientific Name (Optional)</label>
-            <input type="text" id="manifest_scientific" class="w-full text-sm p-2 border border-slate-300 rounded-md bg-slate-50" value="Mammuthus primigenius">
+            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Declared Scientific Name (Optional)</label>
+            <input type="text" id="manifest_scientific" class="w-full text-sm p-2.5 bg-slate-900/90 border border-slate-700/80 rounded-xl text-slate-100 focus:ring-2 focus:ring-emerald-500 focus:outline-none" value="Mammuthus primigenius">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Country of Origin (ISO-2)</label>
-            <input type="text" id="manifest_origin" class="w-full text-sm p-2 border border-slate-300 rounded-md bg-slate-50" value="NG">
+            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Country of Origin (ISO-2 Code)</label>
+            <input type="text" id="manifest_origin" class="w-full text-sm p-2.5 bg-slate-900/90 border border-slate-700/80 rounded-xl text-slate-100 font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none" value="NG">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Declared Quantity / Unit</label>
-            <input type="text" id="manifest_quantity" class="w-full text-sm p-2 border border-slate-300 rounded-md bg-slate-50" value="450 kg (Carved ornaments)">
+            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Declared Quantity / Unit</label>
+            <input type="text" id="manifest_quantity" class="w-full text-sm p-2.5 bg-slate-900/90 border border-slate-700/80 rounded-xl text-slate-100 focus:ring-2 focus:ring-emerald-500 focus:outline-none" value="450 kg (Carved ornaments)">
           </div>
         </div>
 
-        <!-- Physical Inspection Section -->
-        <div class="border-t border-slate-100 pt-4 space-y-4">
-          <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-            <i class="fa-solid fa-microscope text-indigo-600"></i> Physical Inspection & Micro-Structure
-          </h2>
+        <!-- Physical Morphology Section -->
+        <div class="border-t border-slate-800 pt-5 space-y-4">
+          <div class="flex justify-between items-center">
+            <h2 class="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+              <i class="fa-solid fa-microscope text-indigo-400"></i> Physical Inspection & Micro-Structure
+            </h2>
+            <span class="text-[10px] text-slate-400 font-mono">Macro / Micro Forensic Triage</span>
+          </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Observed Specimen Category</label>
-              <select id="insp_category" class="w-full text-sm p-2 border border-slate-300 rounded-md bg-slate-50">
+              <label class="block text-xs font-semibold text-slate-400 mb-1.5">Observed Specimen Category</label>
+              <select id="insp_category" class="w-full text-sm p-2.5 bg-slate-900/90 border border-slate-700/80 rounded-xl text-slate-100 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                 <option value="ivory">Ivory / Proboscidean Dentine</option>
                 <option value="keratin_scales">Keratin Scales (Pangolin / Reptile)</option>
                 <option value="timber">Timber / Wood Cross-Section</option>
@@ -111,114 +175,122 @@
               </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Checkpoint / Port Location</label>
-              <input type="text" id="insp_location" class="w-full text-sm p-2 border border-slate-300 rounded-md bg-slate-50" value="Port of Mombasa, Berth 4">
+              <label class="block text-xs font-semibold text-slate-400 mb-1.5">Checkpoint / Port Terminal</label>
+              <input type="text" id="insp_location" class="w-full text-sm p-2.5 bg-slate-900/90 border border-slate-700/80 rounded-xl text-slate-100 focus:ring-2 focus:ring-emerald-500 focus:outline-none" value="Port of Mombasa, Berth 4">
             </div>
           </div>
 
           <!-- Dynamic Caliper Tool Card for Ivory -->
-          <div id="schregerToolContainer" class="p-4 bg-slate-50 border border-slate-200 rounded-lg space-y-3">
+          <div id="schregerToolContainer" class="p-4 bg-slate-900/90 border border-slate-800 rounded-xl space-y-3">
             <div class="flex justify-between items-center">
-              <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <i class="fa-solid fa-compass-drafting text-emerald-600"></i> Interactive Schreger Caliper / Protractor
+              <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                <i class="fa-solid fa-compass-drafting text-emerald-400"></i> Interactive Schreger Caliper / Protractor
               </span>
-              <span id="schregerBadge" class="text-xs font-bold px-2 py-0.5 rounded bg-red-100 text-red-700">
+              <span id="schregerBadge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-red-950 text-red-300 border border-red-800">
                 Elephant (>115°)
               </span>
             </div>
             <div class="flex items-center space-x-4">
-              <input type="range" id="schregerSlider" min="50" max="150" value="124" class="w-full h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer accent-emerald-600">
-              <span id="schregerVal" class="text-sm font-mono font-bold w-12 text-right">124°</span>
+              <input type="range" id="schregerSlider" min="50" max="150" value="124" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+              <span id="schregerVal" class="text-sm font-mono font-bold w-12 text-right text-emerald-400">124°</span>
             </div>
-            <p class="text-[11px] text-slate-500">
-              Drag slider to set measured outer intersection angle. Elephant: >115° (typically 120-140°). Mammoth: <90° (typically 70-85°).
+            <p class="text-[11px] text-slate-400">
+              Outer Schreger angle baseline: <strong>Elephant Ivory &gt; 115°</strong> (typically 120-140°). <strong>Extinct Mammoth &lt; 90°</strong> (typically 70-85°).
             </p>
           </div>
 
           <!-- Photo Upload & Presentation Showcase -->
-          <div class="p-4 bg-slate-50 border border-slate-200 rounded-lg space-y-3">
+          <div class="p-4 bg-slate-900/90 border border-slate-800 rounded-xl space-y-3">
             <div class="flex justify-between items-center">
-              <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <i class="fa-solid fa-camera text-emerald-600"></i> Specimen Photographic Evidence (Presentation & Dossier)
+              <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                <i class="fa-solid fa-camera text-emerald-400"></i> Specimen Evidence Photo (Presentation & PDF Embedding)
               </span>
-              <span class="text-[10px] text-slate-400 font-mono">PNG / JPG / JPEG</span>
+              <span class="text-[10px] text-slate-400 font-mono">JPG / PNG / WEBP</span>
             </div>
+            
             <div class="flex items-center gap-3">
-              <label class="cursor-pointer bg-white border border-slate-300 hover:border-emerald-500 hover:text-emerald-700 text-slate-700 text-xs font-semibold px-3 py-2 rounded-md shadow-sm flex items-center gap-2 transition">
-                <i class="fa-solid fa-upload"></i> Upload Downloaded Picture
+              <label class="cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-3.5 py-2.5 rounded-xl shadow transition flex items-center gap-2">
+                <i class="fa-solid fa-cloud-arrow-up text-emerald-400"></i> Upload Downloaded Picture
                 <input type="file" id="specimenPhotoInput" accept="image/*" class="hidden">
               </label>
-              <button type="button" id="btnClearPhoto" class="hidden text-xs text-slate-400 hover:text-red-500">
-                <i class="fa-solid fa-xmark"></i> Remove
+              <button type="button" id="btnClearPhoto" class="hidden text-xs text-red-400 hover:text-red-300 flex items-center gap-1">
+                <i class="fa-solid fa-trash-can"></i> Remove Photo
               </button>
             </div>
+
             <!-- Photo Preview -->
-            <div id="photoPreviewContainer" class="hidden mt-2 relative">
-              <img id="photoPreviewImg" src="" alt="Specimen Preview" class="w-full max-h-48 object-cover rounded-lg border border-slate-200 shadow-sm">
-              <span class="absolute bottom-2 left-2 bg-slate-900/80 text-white text-[10px] px-2 py-0.5 rounded font-mono" id="photoFilename">specimen.jpg</span>
+            <div id="photoPreviewContainer" class="hidden mt-2 relative rounded-xl overflow-hidden border border-slate-700 shadow-md">
+              <img id="photoPreviewImg" src="" alt="Specimen Evidence Preview" class="w-full max-h-56 object-cover">
+              <div class="absolute bottom-2 left-2 bg-slate-950/85 backdrop-blur px-2.5 py-1 rounded-md text-[10px] font-mono text-emerald-300 border border-slate-800 flex items-center gap-1.5">
+                <i class="fa-solid fa-tag"></i>
+                <span id="photoFilename">specimen.jpg</span>
+              </div>
             </div>
-            <p class="text-[11px] text-slate-500">
-              Uploaded photo will be permanently archived and embedded directly into the official ReportLab PDF evidentiary dossier.
+            <p class="text-[11px] text-slate-400">
+              Uploaded photo will be archived permanently in <code class="font-mono text-emerald-400">output/{case_id}/</code> and embedded directly into the ReportLab PDF evidentiary dossier.
             </p>
           </div>
 
-          <div id="measurementsSummary" class="text-xs text-slate-500 bg-slate-50 p-3 rounded border border-slate-200 font-mono">
+          <!-- Dynamic Active Measurements Summary -->
+          <div id="measurementsSummary" class="text-xs text-slate-400 bg-slate-950/80 p-3 rounded-xl border border-slate-800 font-mono">
             Measurements: [schreger_angle_outer=124, haversian_canals_present=false, molding_seams_present=false]
           </div>
 
-          <button id="btnRunTriage" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg shadow transition flex items-center justify-center space-x-2">
-            <i class="fa-solid fa-fingerprint"></i>
-            <span>Run Forensic Triage & Generate Evidentiary Dossier</span>
+          <!-- Submit Triage Button -->
+          <button id="btnRunTriage" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition duration-200 flex items-center justify-center space-x-2">
+            <i class="fa-solid fa-fingerprint text-lg"></i>
+            <span>Run Forensic Triage & Compile Evidentiary Dossier</span>
           </button>
         </div>
+
       </div>
 
     </div>
 
-    <!-- Right Column: Results & Dossier Package (5 cols) -->
+    <!-- Right Column: Results & Cryptographic Dossier Package (5 cols) -->
     <div class="lg:col-span-5 space-y-6">
 
       <!-- Triage Result Card -->
-      <div id="resultCard" class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+      <div id="resultCard" class="glass-card p-6 rounded-2xl border border-slate-800 shadow-md space-y-5">
         <div class="flex justify-between items-start">
           <div>
-            <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">Triage Result</span>
-            <h3 id="verdictTaxon" class="text-lg font-black text-slate-900 mt-0.5">Elephant Ivory (Loxodonta / Elephas)</h3>
-            <span id="citesBadge" class="inline-block mt-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-red-100 text-red-800 border border-red-200">
+            <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">Triage Verdict</span>
+            <h3 id="verdictTaxon" class="text-lg font-black text-white mt-1">Elephant Ivory (Loxodonta africana)</h3>
+            <span id="citesBadge" class="inline-block mt-1 text-[11px] font-bold px-3 py-1 rounded-full bg-red-950 text-red-300 border border-red-800">
               CITES Appendix I (Commercial Trade Banned)
             </span>
           </div>
-          <div id="scoreBox" class="text-right">
-            <span class="text-2xl font-black text-red-600" id="scoreVal">0.92</span>
-            <span class="block text-[10px] text-slate-400 uppercase font-bold">Discrepancy</span>
+          <div id="scoreBox" class="text-right bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+            <span class="text-3xl font-black text-red-500" id="scoreVal">0.92</span>
+            <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">Discrepancy</span>
           </div>
         </div>
 
         <!-- Alert Notification Spool -->
-        <div id="alertBox" class="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-800 flex items-start gap-2">
-          <i class="fa-solid fa-bell text-red-600 mt-0.5"></i>
+        <div id="alertBox" class="p-3.5 bg-red-950/60 border border-red-800/80 rounded-xl text-xs text-red-200 flex items-start gap-2.5 glow-red">
+          <i class="fa-solid fa-bell text-red-400 text-base mt-0.5 animate-bounce"></i>
           <div>
-            <strong>🚨 Automated Local Authority Alert Dispatched</strong>
-            <p class="text-[11px] text-red-700 mt-0.5">Discrepancy score &ge; 0.70 threshold. Emergency incident notification queued for customs seizure.</p>
+            <strong class="text-red-300">🚨 Automated Local Authority Alert Dispatched</strong>
+            <p class="text-[11px] text-red-300/80 mt-0.5">Discrepancy score &ge; 0.70 threshold. Incident payload with seizure recommendation queued for port law enforcement.</p>
           </div>
         </div>
 
-        <!-- Flagged Contradictions -->
+        <!-- Flagged Empirical Contradictions -->
         <div class="space-y-2">
-          <span class="text-xs font-bold text-slate-700 uppercase tracking-wider block">Empirical Contradictions</span>
-          <ul id="flaggedList" class="space-y-1.5 text-xs text-slate-700">
-            <li class="flex items-start gap-2 bg-slate-50 p-2 rounded border border-slate-100">
-              <i class="fa-solid fa-circle-xmark text-red-500 mt-0.5"></i>
+          <span class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Empirical Contradictions</span>
+          <ul id="flaggedList" class="space-y-1.5 text-xs text-slate-300">
+            <li class="flex items-start gap-2 bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+              <i class="fa-solid fa-circle-xmark text-red-400 mt-0.5"></i>
               <span>Outer Schreger angle of 124° (>115°) indicates modern elephant ivory, contradicting declared mammoth.</span>
             </li>
           </ul>
         </div>
 
-        <!-- Smuggling Modus Operandi -->
-        <div class="space-y-1.5">
-          <span class="text-xs font-bold text-slate-700 uppercase tracking-wider block">Matched Smuggling Modus Operandi</span>
+        <!-- Matched Smuggling Modus Operandi -->
+        <div class="space-y-2">
+          <span class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Matched Smuggling Modus Operandi</span>
           <div id="moList" class="flex flex-wrap gap-1.5">
-            <span class="text-[11px] bg-slate-100 text-slate-800 px-2.5 py-1 rounded border border-slate-200 font-medium">
+            <span class="text-[11px] bg-slate-900 text-slate-200 px-3 py-1 rounded-lg border border-slate-700 font-medium">
               🕵️ MO-IVO-001: Antique Mammoth Ivory Camouflage
             </span>
           </div>
@@ -226,101 +298,76 @@
 
         <!-- Lab Testing Protocol -->
         <div class="space-y-2">
-          <span class="text-xs font-bold text-slate-700 uppercase tracking-wider block">Mandatory Lab Actions</span>
-          <div id="labList" class="space-y-1.5 text-xs">
-            <div class="bg-indigo-50 border border-indigo-100 p-2 rounded text-indigo-950 flex justify-between items-center">
+          <span class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Confirmatory Lab Actions Required</span>
+          <div id="labList" class="space-y-2 text-xs">
+            <div class="bg-indigo-950/40 border border-indigo-800/60 p-2.5 rounded-lg text-indigo-200 flex justify-between items-center">
               <div>
-                <strong>Radiocarbon Dating (C14)</strong>
-                <p class="text-[10px] text-indigo-700">Bomb-pulse baseline to prove pre-1947 vs modern</p>
+                <strong class="text-indigo-300">Radiocarbon Dating (C14)</strong>
+                <p class="text-[10px] text-indigo-400">Bomb-pulse baseline to prove pre-1947 vs modern</p>
               </div>
-              <span class="text-[10px] font-bold bg-indigo-200 px-2 py-0.5 rounded text-indigo-800">MANDATORY</span>
+              <span class="text-[10px] font-bold bg-indigo-900 text-indigo-200 border border-indigo-700 px-2 py-0.5 rounded">MANDATORY</span>
             </div>
           </div>
         </div>
 
-        <!-- Rationale -->
-        <div class="space-y-1 bg-slate-50 p-3 rounded-lg border border-slate-200">
-          <span class="text-[11px] font-bold text-slate-600 block">AI Investigative Rationale (Gemma 2)</span>
-          <p id="rationaleText" class="text-xs text-slate-700 italic">
+        <!-- AI Investigative Rationale (Gemma 4) -->
+        <div class="space-y-1.5 bg-slate-900/90 p-3.5 rounded-xl border border-slate-800">
+          <div class="flex justify-between items-center">
+            <span class="text-[11px] font-bold text-emerald-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-brain"></i> AI Investigative Rationale (Gemma 4 e2b)
+            </span>
+            <span class="text-[10px] font-mono text-slate-500">Zero-Hallucination GBNF</span>
+          </div>
+          <p id="rationaleText" class="text-xs text-slate-300 italic leading-relaxed">
             Physical inspection exhibits outer Schreger angles exceeding 115 degrees, characteristic of protected elephant dentine, contradicting declared mammoth carvings.
           </p>
         </div>
 
         <!-- Dossier Package Export Actions -->
-        <div class="pt-2 border-t border-slate-200 space-y-2">
-          <span class="text-xs font-bold text-slate-700 uppercase tracking-wider block">Evidentiary Dossier Package</span>
+        <div class="pt-3 border-t border-slate-800 space-y-2.5">
+          <span class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Cryptographic Dossier Package</span>
           <div class="grid grid-cols-3 gap-2">
-            <a id="btnPdf" href="/api/dossier/CASE-2026-BM01/pdf" target="_blank" class="text-center py-2 px-1 text-xs font-bold bg-slate-800 hover:bg-slate-900 text-white rounded shadow transition flex flex-col items-center">
-              <i class="fa-solid fa-file-pdf text-red-400 mb-1"></i> PDF Dossier
+            <a id="btnPdf" href="/api/dossier/CASE-2026-BM01/pdf" target="_blank" class="text-center py-2.5 px-1 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow transition flex flex-col items-center">
+              <i class="fa-solid fa-file-pdf text-red-300 mb-1"></i> PDF Dossier
             </a>
-            <a id="btnMd" href="/api/dossier/CASE-2026-BM01/markdown" target="_blank" class="text-center py-2 px-1 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 rounded border border-slate-300 transition flex flex-col items-center">
-              <i class="fa-brands fa-markdown text-blue-500 mb-1"></i> Markdown
+            <a id="btnMd" href="/api/dossier/CASE-2026-BM01/markdown" target="_blank" class="text-center py-2.5 px-1 text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl border border-slate-700 transition flex flex-col items-center">
+              <i class="fa-brands fa-markdown text-blue-400 mb-1"></i> Markdown
             </a>
-            <a id="btnJson" href="/api/dossier/CASE-2026-BM01/json" target="_blank" class="text-center py-2 px-1 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 rounded border border-slate-300 transition flex flex-col items-center">
-              <i class="fa-solid fa-code text-emerald-500 mb-1"></i> JSON + Hash
+            <a id="btnJson" href="/api/dossier/CASE-2026-BM01/json" target="_blank" class="text-center py-2.5 px-1 text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl border border-slate-700 transition flex flex-col items-center">
+              <i class="fa-solid fa-code text-emerald-400 mb-1"></i> JSON + Hash
             </a>
           </div>
-          <div class="text-[10px] font-mono text-slate-400 truncate mt-1">
-            SHA-256: <span id="shaText">a3f9e2b17c8d9...</span>
+          <div class="text-[10px] font-mono text-slate-400 truncate bg-slate-950 p-2 rounded-lg border border-slate-800">
+            SHA-256: <span id="shaText" class="text-emerald-400 font-bold">a3f9e2b17c8d9...</span>
           </div>
         </div>
       </div>
 
       <!-- Higher Authority Escalation Review Card -->
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-3">
+      <div class="glass-card p-5 rounded-2xl border border-slate-800 shadow-md space-y-3">
         <div class="flex justify-between items-center">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
-            <i class="fa-solid fa-user-shield text-indigo-600"></i> Higher Authority Approval Portal
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+            <i class="fa-solid fa-user-shield text-indigo-400"></i> Higher Authority Approval Portal
           </h3>
-          <span class="text-[10px] font-bold bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">Learning Loop</span>
+          <span class="text-[10px] font-bold bg-indigo-950 text-indigo-300 border border-indigo-800 px-2.5 py-0.5 rounded-full">Learning Loop</span>
         </div>
-        <p class="text-xs text-slate-500">
-          Unidentified specimens flagged as novel anomalies are routed to scientific authorities. Once approved, the taxon is automatically ingested into the offline reference database.
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Unidentified specimens flagged as novel anomalies are queued for scientific review. Approved specimens are automatically ingested into the local SQLite database.
         </p>
         <div class="space-y-2 text-xs">
-          <input type="text" id="escCaseId" placeholder="Case ID (e.g. CASE-2026-BM06)" class="w-full p-2 border border-slate-300 rounded bg-slate-50 font-mono">
+          <input type="text" id="escCaseId" placeholder="Case ID (e.g. CASE-2026-BM06)" class="w-full p-2.5 border border-slate-700 rounded-xl bg-slate-900 text-slate-100 font-mono">
           <div class="grid grid-cols-2 gap-2">
-            <input type="text" id="escSpecies" placeholder="Verified Species" class="p-2 border border-slate-300 rounded bg-slate-50">
-            <select id="escAppendix" class="p-2 border border-slate-300 rounded bg-slate-50">
+            <input type="text" id="escSpecies" placeholder="Verified Species" class="p-2.5 border border-slate-700 rounded-xl bg-slate-900 text-slate-100">
+            <select id="escAppendix" class="p-2.5 border border-slate-700 rounded-xl bg-slate-900 text-slate-100">
               <option value="I">CITES Appendix I</option>
               <option value="II">CITES Appendix II</option>
               <option value="III">CITES Appendix III</option>
               <option value="None">Not Listed</option>
             </select>
           </div>
-          <button id="btnApproveEsc" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 rounded transition">
+          <button id="btnApproveEsc" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 rounded-xl border border-slate-700 transition">
             Approve & Ingest into Reference Database
           </button>
-        </div>
-      </div>
-
-      <!-- Mobile Companion Pairing Card -->
-      <div class="bg-gradient-to-br from-emerald-950 to-slate-900 text-white p-5 rounded-xl shadow-md border border-emerald-800 space-y-4">
-        <div class="flex justify-between items-center">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
-            <i class="fa-solid fa-mobile-screen text-emerald-400"></i> Mobile Companion Pairing
-          </h3>
-          <span class="text-[10px] font-mono bg-emerald-900/80 text-emerald-300 border border-emerald-700 px-2 py-0.5 rounded-full">
-            LAN Sync Ready
-          </span>
-        </div>
-        <p class="text-xs text-slate-300">
-          Scan with the CanopyTrace mobile app or enter the server host to upload on-site field photos directly for Gemma 4 triage.
-        </p>
-        <div class="flex flex-col sm:flex-row items-center gap-4 bg-slate-950/60 p-3 rounded-lg border border-slate-800">
-          <div id="qrcode" class="bg-white p-2 rounded shadow-inner flex items-center justify-center min-w-[120px] min-h-[120px]"></div>
-          <div class="space-y-1 text-xs font-mono w-full">
-            <span class="text-slate-400 text-[10px] uppercase block">Pairing Endpoint</span>
-            <div id="pairingUrl" class="text-emerald-400 font-bold break-all bg-slate-900 p-2 rounded border border-slate-800">
-              http://127.0.0.1:8001
-            </div>
-            <div class="text-[10px] text-slate-400 pt-1">
-              Active Model: <span id="serverModel" class="text-slate-200">gemma4:e2b</span>
-            </div>
-            <div class="text-[10px] text-slate-400">
-              Endpoint: <span class="text-emerald-300">/api/mobile/inspect</span>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -328,13 +375,51 @@
 
   </main>
 
+  <!-- Mobile Pairing Modal Dialog (Using HTML5 <dialog> with closedby="any" light-dismiss) -->
+  <dialog id="pairModal" closedby="any" class="glass-panel text-white p-6 rounded-2xl max-w-md w-full border border-slate-700 shadow-2xl backdrop:bg-slate-950/80">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-base font-bold flex items-center gap-2 text-emerald-400">
+        <i class="fa-solid fa-mobile-screen"></i> Mobile Companion Pairing
+      </h3>
+      <button onclick="document.getElementById('pairModal').close()" class="text-slate-400 hover:text-white text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    
+    <p class="text-xs text-slate-300 mb-4 leading-relaxed">
+      Scan this QR code from the CanopyTrace mobile app on your phone, or type the endpoint URL in the mobile app's <strong>Pairing</strong> tab.
+    </p>
+
+    <div class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-inner mb-4">
+      <div id="qrcodeModal" class="flex items-center justify-center"></div>
+    </div>
+
+    <div class="space-y-2 text-xs font-mono">
+      <span class="text-slate-400 text-[10px] uppercase block">Pairing Endpoint URL</span>
+      <div id="modalPairingUrl" class="text-emerald-400 font-bold break-all bg-slate-900 p-2.5 rounded-lg border border-slate-800">
+        http://127.0.0.1:8001
+      </div>
+      <div class="flex justify-between text-[11px] text-slate-400 pt-1">
+        <span>Active Model: <strong id="modalModel" class="text-slate-200">gemma4:e2b</strong></span>
+        <span class="text-emerald-400">LAN Ready</span>
+      </div>
+    </div>
+
+    <div class="mt-5">
+      <button onclick="document.getElementById('pairModal').close()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl border border-slate-700 text-xs transition">
+        Done
+      </button>
+    </div>
+  </dialog>
+
   <!-- Footer -->
-  <footer class="bg-slate-900 text-slate-400 py-4 px-6 text-center text-xs mt-auto border-t border-slate-800">
-    <p>CanopyTrace v0.1.0 — Open-Source AI Forensic Decision Support Platform | Licensed under MIT / Apache 2.0</p>
+  <footer class="bg-slate-950 border-t border-slate-900 text-slate-500 py-4 px-6 text-center text-xs mt-auto">
+    <p>CanopyTrace v0.1.0 — Open-Source AI Forensic Decision Support Platform | Powered by Google Gemma 4 | Apache 2.0</p>
   </footer>
 
-  <!-- Client-Side Script -->
+  <!-- Client-Side Application Script -->
   <script>
+    // Smuggling Benchmarks
     const scenarios = {
       scenario_ivory: {
         case_id: "CASE-2026-BM01",
@@ -376,7 +461,7 @@
       },
       scenario_turtle: {
         case_id: "CASE-2026-BM04",
-        item: "Decorative Synthetic Celluloid Resin",
+        item: "Synthetic Decorative Resin Plates",
         scientific: "",
         origin: "ID",
         quantity: "120 pieces",
@@ -440,6 +525,7 @@
       loadScenario(e.target.value);
     });
 
+    // Schreger Caliper Slider
     const slider = document.getElementById("schregerSlider");
     const valText = document.getElementById("schregerVal");
     const badge = document.getElementById("schregerBadge");
@@ -449,16 +535,15 @@
       valText.innerText = val + "°";
       if (val > 115) {
         badge.innerText = "Elephant (>115°)";
-        badge.className = "text-xs font-bold px-2 py-0.5 rounded bg-red-100 text-red-700";
+        badge.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-red-950 text-red-300 border border-red-800";
       } else if (val < 90) {
         badge.innerText = "Mammoth (<90°)";
-        badge.className = "text-xs font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-700";
+        badge.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-800";
       } else {
         badge.innerText = "Intermediate (90-115°)";
-        badge.className = "text-xs font-bold px-2 py-0.5 rounded bg-slate-200 text-slate-700";
+        badge.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700";
       }
 
-      // Update active measurements
       const m = activeMeasurements.find(x => x.feature_name === "schreger_angle_outer");
       if (m) m.value = val;
       document.getElementById("measurementsSummary").innerText =
@@ -500,7 +585,7 @@
       const caseId = document.getElementById("displayCaseId").innerText;
       const btn = document.getElementById("btnRunTriage");
       btn.disabled = true;
-      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Analyzing Manifest & Morphology...</span>`;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Analyzing Manifest & Morphology with Gemma...</span>`;
 
       try {
         let resp;
@@ -523,7 +608,6 @@
             body: formData
           });
           const mobData = await resp.json();
-          // Transform mobile response to standard display structure
           data = {
             suspected_species: mobData.suspected_species,
             discrepancy_score: mobData.discrepancy_score,
@@ -571,53 +655,58 @@
           data = await resp.json();
         }
         btn.disabled = false;
-        btn.innerHTML = `<i class="fa-solid fa-fingerprint"></i><span>Run Forensic Triage & Generate Evidentiary Dossier</span>`;
+        btn.innerHTML = `<i class="fa-solid fa-fingerprint text-lg"></i><span>Run Forensic Triage & Compile Evidentiary Dossier</span>`;
 
-        // Update UI
+        // Update Verdict UI
         document.getElementById("verdictTaxon").innerText = data.suspected_species;
         document.getElementById("scoreVal").innerText = data.discrepancy_score.toFixed(2);
 
         const appBadge = document.getElementById("citesBadge");
         if (data.cites_appendix === "I") {
           appBadge.innerText = "CITES Appendix I (Commercial Trade Banned)";
-          appBadge.className = "inline-block mt-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-red-100 text-red-800 border border-red-200";
+          appBadge.className = "inline-block mt-1 text-[11px] font-bold px-3 py-1 rounded-full bg-red-950 text-red-300 border border-red-800";
         } else if (data.cites_appendix === "II") {
           appBadge.innerText = "CITES Appendix II (Permit Required)";
-          appBadge.className = "inline-block mt-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200";
+          appBadge.className = "inline-block mt-1 text-[11px] font-bold px-3 py-1 rounded-full bg-amber-950 text-amber-300 border border-amber-800";
         } else {
-          appBadge.innerText = "Non-CITES Regulated Specimen";
-          appBadge.className = "inline-block mt-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200";
+          appBadge.innerText = "CITES: Not Listed / Unregulated";
+          appBadge.className = "inline-block mt-1 text-[11px] font-bold px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700";
         }
 
-        // Alert Box
-        document.getElementById("alertBox").style.display = data.alert_dispatched ? "flex" : "none";
+        // Authority Alert Box
+        const alertBox = document.getElementById("alertBox");
+        if (data.alert_dispatch && data.alert_dispatch.alert_generated) {
+          alertBox.style.display = "flex";
+        } else {
+          alertBox.style.display = "none";
+        }
 
         // Contradictions
-        const fList = document.getElementById("flaggedList");
-        fList.innerHTML = "";
+        const fl = document.getElementById("flaggedList");
+        fl.innerHTML = "";
         if (data.flagged_indicators && data.flagged_indicators.length > 0) {
-          data.flagged_indicators.forEach(f => {
+          data.flagged_indicators.forEach(item => {
             const li = document.createElement("li");
-            li.className = "flex items-start gap-2 bg-slate-50 p-2 rounded border border-slate-100";
-            li.innerHTML = `<i class="fa-solid fa-circle-xmark text-red-500 mt-0.5"></i><span>${f}</span>`;
-            fList.appendChild(li);
+            li.className = "flex items-start gap-2 bg-slate-900/80 p-2.5 rounded-lg border border-slate-800";
+            li.innerHTML = `<i class="fa-solid fa-circle-xmark text-red-400 mt-0.5"></i><span>${item}</span>`;
+            fl.appendChild(li);
           });
         } else {
-          fList.innerHTML = `<li class="text-emerald-700 bg-emerald-50 p-2 rounded border border-emerald-100 flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-600"></i> No empirical contradictions found.</li>`;
+          fl.innerHTML = `<li class="text-slate-400 italic">No empirical contradictions found. Declaration matches morphology.</li>`;
         }
 
-        // MO list
+        // Smuggling MOs
         const moContainer = document.getElementById("moList");
         moContainer.innerHTML = "";
         if (data.smuggling_mos && data.smuggling_mos.length > 0) {
-          data.smuggling_mos.forEach(m => {
-            const s = document.createElement("span");
-            s.className = "text-[11px] bg-slate-100 text-slate-800 px-2.5 py-1 rounded border border-slate-200 font-medium";
-            s.innerText = "🕵️ " + m;
-            moContainer.appendChild(s);
+          data.smuggling_mos.forEach(mo => {
+            const span = document.createElement("span");
+            span.className = "text-[11px] bg-slate-900 text-slate-200 px-3 py-1 rounded-lg border border-slate-700 font-medium";
+            span.innerText = `🕵️ ${mo.pattern_id}: ${mo.name}`;
+            moContainer.appendChild(span);
           });
         } else {
-          moContainer.innerHTML = `<span class="text-[11px] text-slate-400">None detected</span>`;
+          moContainer.innerHTML = `<span class="text-[11px] text-slate-500">None detected</span>`;
         }
 
         // Lab actions
@@ -626,8 +715,8 @@
         if (data.forensic_output.suggested_lab_action && data.forensic_output.suggested_lab_action.length > 0) {
           data.forensic_output.suggested_lab_action.forEach(l => {
             const div = document.createElement("div");
-            div.className = "bg-indigo-50 border border-indigo-100 p-2 rounded text-indigo-950 flex justify-between items-center";
-            div.innerHTML = `<div><strong>${l.test_type}</strong><p class="text-[10px] text-indigo-700">${l.expected_discriminator}</p></div><span class="text-[10px] font-bold bg-indigo-200 px-2 py-0.5 rounded text-indigo-800">${l.priority.toUpperCase()}</span>`;
+            div.className = "bg-indigo-950/40 border border-indigo-800/60 p-2.5 rounded-lg text-indigo-200 flex justify-between items-center";
+            div.innerHTML = `<div><strong class="text-indigo-300">${l.test_type}</strong><p class="text-[10px] text-indigo-400">${l.expected_discriminator}</p></div><span class="text-[10px] font-bold bg-indigo-900 text-indigo-200 border border-indigo-700 px-2 py-0.5 rounded">${l.priority.toUpperCase()}</span>`;
             labBox.appendChild(div);
           });
         }
@@ -675,24 +764,45 @@
       }
     });
 
-    // Initial load
-    loadScenario("scenario_ivory");
+    // Mobile Pairing Modal
+    const pairModal = document.getElementById("pairModal");
+    document.getElementById("btnOpenPairModal").addEventListener("click", () => {
+      pairModal.showModal();
+    });
+
+    // Fallback for light-dismiss on browsers without closedby support (Safari)
+    if (!('closedBy' in HTMLDialogElement.prototype)) {
+      pairModal.addEventListener('click', (event) => {
+        if (event.target !== pairModal) return;
+        const rect = pairModal.getBoundingClientRect();
+        const inDialog = (
+          rect.top <= event.clientY &&
+          event.clientY <= rect.top + rect.height &&
+          rect.left <= event.clientX &&
+          event.clientX <= rect.left + rect.width
+        );
+        if (!inDialog) pairModal.close();
+      });
+    }
 
     // Fetch Server Pairing Info and render QR Code
     async function initMobilePairing() {
       try {
         const resp = await fetch("/api/server-info");
         const info = await resp.json();
-        const serverUrl = info.server_url || window.location.origin;
-        document.getElementById("pairingUrl").innerText = serverUrl;
-        document.getElementById("serverModel").innerText = info.active_model || "gemma4:e2b";
+        const serverUrl = info.server_url || info.base_url || window.location.origin;
+        const modelName = info.active_model || "gemma4:e2b";
 
-        const qrContainer = document.getElementById("qrcode");
+        document.getElementById("modalPairingUrl").innerText = serverUrl;
+        document.getElementById("modalModel").innerText = modelName;
+        document.getElementById("topModelBadge").innerText = modelName;
+
+        const qrContainer = document.getElementById("qrcodeModal");
         qrContainer.innerHTML = "";
         new QRCode(qrContainer, {
           text: serverUrl,
-          width: 104,
-          height: 104,
+          width: 140,
+          height: 140,
           colorDark: "#064e3b",
           colorLight: "#ffffff",
           correctLevel: QRCode.CorrectLevel.M
@@ -701,6 +811,9 @@
         console.warn("Could not load /api/server-info:", e);
       }
     }
+
+    // Initial load
+    loadScenario("scenario_ivory");
     initMobilePairing();
   </script>
 </body>
