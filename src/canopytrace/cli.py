@@ -176,15 +176,30 @@ def dossier_compile(case_file: str, outdir: str) -> None:
     console.print(f"[bold cyan]SHA-256 Digest:[/bold cyan] {meta['sha256_hash']}")
 
 
+def _is_port_in_use(host: str, port: int) -> bool:
+    import socket
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex((host, port)) == 0
+
+
 @main.command()
 @click.option("--host", default="127.0.0.1", help="Server host IP.")
-@click.option("--port", default=8000, help="Server port number.")
+@click.option("--port", default=8001, help="Server port number (default: 8001).")
 def serve(host: str, port: int) -> None:
     """Launch CanopyTrace local Web UI dashboard and REST API."""
     import uvicorn
     from canopytrace.web.app import app
-    console.print(f"[bold green]🌿 Starting CanopyTrace Web Dashboard on http://{host}:{port}[/bold green]")
-    uvicorn.run(app, host=host, port=port)
+
+    actual_port = port
+    if _is_port_in_use(host, actual_port):
+        console.print(f"[bold yellow]Notice: Port {actual_port} is already in use. Searching for free port...[/bold yellow]")
+        for candidate in range(actual_port + 1, actual_port + 50):
+            if not _is_port_in_use(host, candidate):
+                actual_port = candidate
+                break
+
+    console.print(f"[bold green]🌿 Starting CanopyTrace Web Dashboard on http://{host}:{actual_port}[/bold green]")
+    uvicorn.run(app, host=host, port=actual_port)
 
 
 if __name__ == "__main__":
