@@ -260,12 +260,32 @@ class LlamaCppForensicHarness(BaseForensicHarness):
 
 class LocalServerForensicHarness(BaseForensicHarness):
     """
-    Connects to local OpenAI-compatible Gemma 2 endpoints (Ollama, vLLM, or llama.cpp server).
+    Connects to local OpenAI-compatible Gemma endpoints (Ollama, vLLM, or llama.cpp server).
     """
 
-    def __init__(self, api_base: str = "http://localhost:11434/v1", model_name: str = "gemma2:2b"):
+    def __init__(self, api_base: str = "http://localhost:11434/v1", model_name: Optional[str] = None):
         self.api_base = api_base.rstrip("/")
-        self.model_name = model_name
+        self.model_name = model_name or self._detect_model()
+
+    def _detect_model(self) -> str:
+        """Auto-detects available Gemma or installed model from Ollama/server."""
+        env_model = os.environ.get("CANOPYTRACE_LLM_MODEL")
+        if env_model:
+            return env_model
+        try:
+            res = requests.get(f"{self.api_base}/models", timeout=3)
+            if res.status_code == 200:
+                data = res.json()
+                models = [m.get("id", "") for m in data.get("data", [])]
+                # Prioritize any gemma model
+                for m in models:
+                    if "gemma" in m.lower():
+                        return m
+                if models:
+                    return models[0]
+        except Exception:
+            pass
+        return "gemma2:2b"
 
     def synthesize(
         self,
@@ -276,15 +296,19 @@ class LocalServerForensicHarness(BaseForensicHarness):
         pattern_res: Dict[str, Any],
     ) -> ForensicTriageOutput:
         url = f"{self.api_base}/chat/completions"
+        schema_dict = ForensicTriageOutput.model_json_schema()
         system_prompt = (
-            "You are CanopyTrace forensic assistant. Output valid JSON matching the ForensicTriageOutput schema."
+            "You are CanopyTrace, an expert wildlife and timber forensic decision support assistant.\n"
+            "Analyze the cargo manifest and empirical physical measurements to detect fraud.\n"
+            "Respond ONLY with a valid JSON object matching this schema:\n"
+            f"{json.dumps(schema_dict)}"
         )
         user_prompt = (
-            f"Manifest: {manifest.model_dump_json()}\n"
-            f"Inspection: {inspection.model_dump_json()}\n"
-            f"Registry: {json.dumps(registry_res)}\n"
-            f"Morphology: {json.dumps(morph_res)}\n"
-            f"Patterns: {json.dumps(pattern_res)}"
+            f"Declared Manifest:\n{manifest.model_dump_json()}\n\n"
+            f"Physical Inspection Findings:\n{inspection.model_dump_json()}\n\n"
+            f"CITES Registry Audit:\n{json.dumps(registry_res)}\n\n"
+            f"Morphology Diagnostic Match:\n{json.dumps(morph_res)}\n\n"
+            f"Smuggling Patterns Triggered:\n{json.dumps(pattern_res)}"
         )
         payload = {
             "model": self.model_name,
@@ -299,6 +323,11 @@ class LocalServerForensicHarness(BaseForensicHarness):
         res.raise_for_status()
         data = res.json()
         content = data["choices"][0]["message"]["content"]
+        # Handle cases where LLM wrapped JSON in markdown fences
+        if "```json" in content:
+            content = content.split("```json")[1].split("```")[0].strip()
+        elif "```" in content:
+            content = content.split("```")[1].split("```")[0].strip()
         return ForensicTriageOutput.model_validate_json(content)
 
 
@@ -308,8 +337,11 @@ def get_forensic_harness(
     force_mock: bool = False,
 ) -> BaseForensicHarness:
     """
-    Factory creating appropriate Gemma forensic harness.
-    Falls back to deterministic MockForensicHarness if model weights or server are unavailable.
+    Factory creating appropriate Gemma forensic harness:
+      1. If forced or testing (CANOPYTRACE_MOCK_HARNESS=1) -> MockForensicHarness
+      2. If GGUF weights provided -> LlamaCppForensicHarness with GBNF grammar
+      3. If local Ollama/vLLM server running -> LocalServerForensicHarness (using Gemma)
+      4. Fallback -> MockForensicHarness
     """
     if force_mock or os.environ.get("CANOPYTRACE_MOCK_HARNESS", "0") == "1":
         return MockForensicHarness()
@@ -320,12 +352,14 @@ def get_forensic_harness(
         except Exception:
             pass
 
-    if server_url or os.environ.get("CANOPYTRACE_LLM_SERVER"):
-        url = server_url or os.environ.get("CANOPYTRACE_LLM_SERVER", "http://localhost:11434/v1")
-        try:
-            return LocalServerForensicHarness(api_base=url)
-        except Exception:
-            pass
+    # Check configured or running Ollama server
+    target_url = server_url or os.environ.get("CANOPYTRACE_LLM_SERVER", "http://localhost:11434/v1")
+    try:
+        check = requests.get(f"{target_url.rstrip('/')}/models", timeout=2)
+        if check.status_code == 200:
+            return LocalServerForensicHarness(api_base=target_url)
+    except Exception:
+        pass
 
-    # Default robust deterministic fallback
+    # Default deterministic fallback
     return MockForensicHarness()
