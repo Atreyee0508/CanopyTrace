@@ -135,6 +135,33 @@
             </p>
           </div>
 
+          <!-- Photo Upload & Presentation Showcase -->
+          <div class="p-4 bg-slate-50 border border-slate-200 rounded-lg space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <i class="fa-solid fa-camera text-emerald-600"></i> Specimen Photographic Evidence (Presentation & Dossier)
+              </span>
+              <span class="text-[10px] text-slate-400 font-mono">PNG / JPG / JPEG</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <label class="cursor-pointer bg-white border border-slate-300 hover:border-emerald-500 hover:text-emerald-700 text-slate-700 text-xs font-semibold px-3 py-2 rounded-md shadow-sm flex items-center gap-2 transition">
+                <i class="fa-solid fa-upload"></i> Upload Downloaded Picture
+                <input type="file" id="specimenPhotoInput" accept="image/*" class="hidden">
+              </label>
+              <button type="button" id="btnClearPhoto" class="hidden text-xs text-slate-400 hover:text-red-500">
+                <i class="fa-solid fa-xmark"></i> Remove
+              </button>
+            </div>
+            <!-- Photo Preview -->
+            <div id="photoPreviewContainer" class="hidden mt-2 relative">
+              <img id="photoPreviewImg" src="" alt="Specimen Preview" class="w-full max-h-48 object-cover rounded-lg border border-slate-200 shadow-sm">
+              <span class="absolute bottom-2 left-2 bg-slate-900/80 text-white text-[10px] px-2 py-0.5 rounded font-mono" id="photoFilename">specimen.jpg</span>
+            </div>
+            <p class="text-[11px] text-slate-500">
+              Uploaded photo will be permanently archived and embedded directly into the official ReportLab PDF evidentiary dossier.
+            </p>
+          </div>
+
           <div id="measurementsSummary" class="text-xs text-slate-500 bg-slate-50 p-3 rounded border border-slate-200 font-mono">
             Measurements: [schreger_angle_outer=124, haversian_canals_present=false, molding_seams_present=false]
           </div>
@@ -438,44 +465,111 @@
         "Measurements: " + JSON.stringify(activeMeasurements);
     });
 
+    // Specimen Photo Handling
+    let selectedPhotoFile = null;
+    const photoInput = document.getElementById("specimenPhotoInput");
+    const previewContainer = document.getElementById("photoPreviewContainer");
+    const previewImg = document.getElementById("photoPreviewImg");
+    const clearPhotoBtn = document.getElementById("btnClearPhoto");
+    const photoFilename = document.getElementById("photoFilename");
+
+    photoInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        selectedPhotoFile = file;
+        photoFilename.innerText = file.name;
+        clearPhotoBtn.classList.remove("hidden");
+        const reader = new FileReader();
+        reader.onload = (re) => {
+          previewImg.src = re.target.result;
+          previewContainer.classList.remove("hidden");
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    clearPhotoBtn.addEventListener("click", () => {
+      selectedPhotoFile = null;
+      photoInput.value = "";
+      previewContainer.classList.add("hidden");
+      clearPhotoBtn.classList.add("hidden");
+    });
+
     // Run Triage
     document.getElementById("btnRunTriage").addEventListener("click", async () => {
       const caseId = document.getElementById("displayCaseId").innerText;
-      const payload = {
-        case_id: caseId,
-        manifest: {
-          manifest_id: caseId.replace("CASE-", "MAN-"),
-          waybill_number: "WB-" + Math.floor(100000 + Math.random() * 900000),
-          shipper: "Global Logistics Freight Co.",
-          consignee: "Artisan Import Trading Ltd.",
-          declared_item_name: document.getElementById("manifest_item").value,
-          declared_scientific_name: document.getElementById("manifest_scientific").value || null,
-          declared_quantity: 100.0,
-          declared_unit: "kg",
-          country_of_origin: document.getElementById("manifest_origin").value,
-          destination_country: "CN"
-        },
-        inspection: {
-          inspection_id: "INSP-" + caseId,
-          inspector_id: "CUSTOMS-OFFICER-44",
-          checkpoint_location: document.getElementById("insp_location").value,
-          observed_specimen_category: document.getElementById("insp_category").value,
-          measurements: activeMeasurements
-        }
-      };
+      const btn = document.getElementById("btnRunTriage");
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Analyzing Manifest & Morphology...</span>`;
 
       try {
-        const btn = document.getElementById("btnRunTriage");
-        btn.disabled = true;
-        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Analyzing Manifest & Morphology...</span>`;
+        let resp;
+        let data;
 
-        const resp = await fetch("/api/inspect", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await resp.json();
+        if (selectedPhotoFile) {
+          // Use multipart endpoint to archive photo & embed into PDF
+          const formData = new FormData();
+          formData.append("photo", selectedPhotoFile);
+          formData.append("case_id", caseId);
+          formData.append("declared_item", document.getElementById("manifest_item").value);
+          formData.append("category", document.getElementById("insp_category").value);
+          formData.append("origin_country", document.getElementById("manifest_origin").value);
+          formData.append("checkpoint_location", document.getElementById("insp_location").value);
+          if (document.getElementById("insp_category").value === "ivory") {
+            formData.append("caliper_angle", document.getElementById("schregerSlider").value);
+          }
+          resp = await fetch("/api/mobile/inspect", {
+            method: "POST",
+            body: formData
+          });
+          const mobData = await resp.json();
+          // Transform mobile response to standard display structure
+          data = {
+            suspected_species: mobData.suspected_species,
+            discrepancy_score: mobData.discrepancy_score,
+            cites_appendix: mobData.cites_appendix,
+            flagged_indicators: mobData.flagged_indicators,
+            smuggling_mos: mobData.smuggling_mos,
+            forensic_output: mobData.forensic_output,
+            alert_dispatch: { alert_generated: mobData.alert_dispatched },
+            dossier_package: {
+              sha256_hash: mobData.sha256_hash,
+              pdf_url: mobData.pdf_url,
+              markdown_url: mobData.markdown_url,
+              json_url: mobData.json_url
+            }
+          };
+        } else {
+          // Standard JSON payload
+          const payload = {
+            case_id: caseId,
+            manifest: {
+              manifest_id: caseId.replace("CASE-", "MAN-"),
+              waybill_number: "WB-" + Math.floor(100000 + Math.random() * 900000),
+              shipper: "Global Logistics Freight Co.",
+              consignee: "Artisan Import Trading Ltd.",
+              declared_item_name: document.getElementById("manifest_item").value,
+              declared_scientific_name: document.getElementById("manifest_scientific").value || null,
+              declared_quantity: 100.0,
+              declared_unit: "kg",
+              country_of_origin: document.getElementById("manifest_origin").value,
+              destination_country: "CN"
+            },
+            inspection: {
+              inspection_id: "INSP-" + caseId,
+              inspector_id: "CUSTOMS-OFFICER-44",
+              checkpoint_location: document.getElementById("insp_location").value,
+              observed_specimen_category: document.getElementById("insp_category").value,
+              measurements: activeMeasurements
+            }
+          };
+          resp = await fetch("/api/inspect", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          data = await resp.json();
+        }
         btn.disabled = false;
         btn.innerHTML = `<i class="fa-solid fa-fingerprint"></i><span>Run Forensic Triage & Generate Evidentiary Dossier</span>`;
 
