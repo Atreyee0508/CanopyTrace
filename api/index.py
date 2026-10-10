@@ -39,7 +39,7 @@ from urllib.parse import parse_qs, urlencode, unquote
 from starlette.types import ASGIApp, Scope, Receive, Send
 from starlette.requests import Request
 from starlette.responses import JSONResponse
-from canopytrace.web.app import app
+from canopytrace.web.app import app as _fastapi_app
 
 
 class VercelPathMiddleware:
@@ -69,5 +69,6 @@ class VercelPathMiddleware:
         await self.asgi_app(scope, receive, send)
 
 
-# Wrap with VercelPathMiddleware
-handler = VercelPathMiddleware(app)
+# Vercel looks for 'app' and 'handler'
+app = VercelPathMiddleware(_fastapi_app)
+handler = app
